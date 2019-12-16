@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 19:49:42 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-15 20:45:10
+ * @Last Modified time: 2019-12-16 14:41:00
  * 
  * @desc User类逻辑业务 
  */
@@ -14,14 +14,14 @@ const model = require('../database/models')
  * @param {string} account 
  */
 async function hasUser(account) {
-    console.log(account, '123213')
+    // console.log(account, '123213')
     let user = await model.User.findOne({
         where: {
             account
         }
     })
 
-    console.log(user, 'find')
+    // console.log(user, 'find')
 
     if (!user) {
         console.log('return false')
@@ -39,7 +39,7 @@ async function hasUser(account) {
 async function createUser(option) {
     let user = await model.User.create(option)
     if (user) {
-        console.log(user, '船舰成功')
+        // console.log(user, '船舰成功')
         return user //创建成功
     }
 

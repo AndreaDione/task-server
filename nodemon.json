@@ -6,6 +6,7 @@
     ],
     "watch": [
         "routes/*.js",
-        "controller/*.js"
+        "controller/*.js",
+        "utils/*.js"
     ]
 }

@@ -78,7 +78,6 @@ router.post('/login', async(req, res, next) => {
         //匹配正确则返回true
         //匹配错误则返回false
         let flag = await Bcrypt.compare(password, user.password)
-
         if (!flag) {
             return res.json({
                 message: '账号或者密码错误',
@@ -91,8 +90,7 @@ router.post('/login', async(req, res, next) => {
 
         res.json({
             message: '登录成功',
-            success: true,
-            token
+            success: true
         })
     } catch (error) {
         next(error)

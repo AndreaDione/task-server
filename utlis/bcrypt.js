@@ -2,12 +2,12 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 23:02:27 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-15 23:16:31
+ * @Last Modified time: 2019-12-16 14:37:26
  * @desc 加密处理
  */
 
 
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const saltRounds = 10
 
 /**
