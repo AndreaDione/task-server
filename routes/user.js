@@ -3,6 +3,7 @@ var router = express.Router();
 
 const User = require('../controller/user');
 const Bcrypt = require('../utlis/bcrypt');
+const Token = require('../utlis/token');
 
 /**
  * 注册用户
@@ -52,6 +53,7 @@ router.post('/register', async(req, res, next) => {
             })
         }
     } catch (error) {
+        error.message = '注册期间遇到了错误'
         next(error)
     }
 
@@ -85,70 +87,74 @@ router.post('/login', async(req, res, next) => {
             })
         }
 
-        //这里将要生成token
-        // let token = getToken(account)
+        // 这里将要生成token
+        let token = Token.encodeToken(account)
 
         res.json({
             message: '登录成功',
+            success: true,
+            token
+        })
+    } catch (error) {
+        error.message = '登录期间遇到了错误'
+        next(error)
+    }
+
+})
+
+/**
+ * 获取user用户信息
+ * 
+ */
+router.post('/personal', async(req, res, next) => {
+    let { token } = req.body
+    try {
+        let { account } = await Token.decodeToken(token)
+        let user = await User.hasUser(account)
+        if (!user) {
+            return res.json({
+                message: '该用户不存在',
+                success: false
+            })
+        }
+        res.json({
+            message: '获取用户成功',
+            user
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+/**
+ * 修改用户信息
+ */
+router.put('/personal', async(req, res, next) => {
+    let { token } = req.body
+    try {
+        let { account } = await Token.decodeToken(token)
+        let { name, phone, email, avatar } = req.body
+        let user = await User.updateBaseMsg(account, {
+                name,
+                phone,
+                email,
+                avatar
+            })
+            // console.log(user, '修改信息')
+        if (!user) {
+            return res.json({
+                message: '修改失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '修改信息成功',
             success: true
         })
     } catch (error) {
         next(error)
     }
-    // let { account, password } = req.body
-    // let user = null
-
-    // try {
-    //     user = await model.User.findOne({
-    //         where: {
-    //             account
-    //         }
-    //     })
-    // } catch (error) {
-    //     next(error)
-    // }
-
-    // // console.log(user)
-
-    // if (!user) {
-    //     res.json({
-    //         message: '该用户不存在，请进行注册',
-    //         success: false
-    //     })
-
-    //     return
-    // }
-
-    // //用户存在的情况下匹配密码
-    // if (password === user.password) {
-    //     //生成token，存入redis
-    //     res.json({
-    //         message: '登录成功',
-    //         success: true,
-    //         token: '12321'
-    //     })
-    // } else {
-    //     res.json({
-    //         message: '密码错误',
-    //         success: false
-    //     })
-    // }
-
-})
-
-/**
- * 获取User列表
- */
-router.get('/list', async(req, res, next) => {
-    // let list = await model.User.findAll()
-    // try {
-    //     res.json({
-    //         message: '列表返回',
-    //         list
-    //     })
-    // } catch (error) {
-    //     next(error)
-    // }
 })
 
 module.exports = router;

@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 19:49:42 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-16 14:41:00
+ * @Last Modified time: 2019-12-17 16:40:04
  * 
  * @desc User类逻辑业务 
  */
@@ -24,7 +24,6 @@ async function hasUser(account) {
     // console.log(user, 'find')
 
     if (!user) {
-        console.log('return false')
         return false
     }
 
@@ -39,13 +38,46 @@ async function hasUser(account) {
 async function createUser(option) {
     let user = await model.User.create(option)
     if (user) {
-        // console.log(user, '船舰成功')
         return user //创建成功
     }
+    object
 
     return false //创建失败
+}
+
+/**
+ * 修改个人基本信息
+ * @param {string} account 
+ * @param {object} option 
+ */
+async function updateBaseMsg(account, option) {
+    console.log(option, account)
+    let { name, phone, email, avatar } = option
+    name = name || ''
+    phone = phone || ''
+    email = email || ''
+    avatar = avatar || ''
+    let user = await model.User.update({
+        name,
+        phone,
+        email,
+        avatar
+    }, {
+        where: {
+            account
+        }
+    })
+
+    console.log(user, 'update')
+
+    if (!user) {
+        return false
+    }
+
+    return user
 }
 
 
 exports.hasUser = hasUser
 exports.createUser = createUser
+exports.updateBaseMsg = updateBaseMsg

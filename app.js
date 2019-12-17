@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 20:29:00 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-16 14:43:50
+ * @Last Modified time: 2019-12-17 15:56:25
  */
 
 
@@ -33,13 +33,15 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
     // set locals, only providing error in development
-    res.locals.message = err.message;
+    // res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     // render the error page
-    res.status = err.status || 500
+    res.status = res.status || err.status || 500
+    res.message = err.message || '错误原因不明'
     res.json({
-        res
+        message: res.message,
+        status: res.status
     });
 });
 
