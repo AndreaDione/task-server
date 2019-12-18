@@ -157,4 +157,50 @@ router.put('/personal', async(req, res, next) => {
     }
 })
 
+/**
+ * 修改密码
+ */
+router.put('/rePassword', async(req, res, next) => {
+    let { token, password, newPass } = req.body
+    try {
+        let { account } = await Token.decodeToken(token)
+
+        //先根据account获取该用户的信息
+        let user = await User.hasUser(account)
+        if (!user) {
+            return res.json({
+                message: '用户不存在',
+                success: false
+            })
+        }
+
+        //进行密码校验
+        let flag = await Bcrypt.compare(password, user.password)
+        if (!flag) {
+            return res.json({
+                message: '密码错误',
+                success: false
+            })
+        }
+
+        //新密码要进行加密处理
+        newPass = await Bcrypt.getHashPass(newPass)
+        user = await User.updatePassword(account, newPass)
+        if (!user) {
+            return res.json({
+                message: '修改密码失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '修改密码成功',
+            success: true
+        })
+    } catch (error) {
+        next(error)
+    }
+
+})
+
 module.exports = router;

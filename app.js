@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 20:29:00 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-17 15:56:25
+ * @Last Modified time: 2019-12-18 19:52:39
  */
 
 
@@ -12,6 +12,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var usersRouter = require('./routes/user');
+var tasksRouter = require('./routes/task');
 
 var app = express();
 
@@ -22,7 +23,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', usersRouter);
+app.use('/user', usersRouter);
+app.use('/task', tasksRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

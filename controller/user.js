@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 19:49:42 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-17 16:40:04
+ * @Last Modified time: 2019-12-18 20:17:37
  * 
  * @desc User类逻辑业务 
  */
@@ -40,7 +40,6 @@ async function createUser(option) {
     if (user) {
         return user //创建成功
     }
-    object
 
     return false //创建失败
 }
@@ -77,7 +76,26 @@ async function updateBaseMsg(account, option) {
     return user
 }
 
+async function updatePassword(account, password) {
+    let user = await model.User.update({
+        password
+    }, {
+        where: {
+            account
+        }
+    })
+
+    // console.log(user, 'update password')
+
+    if (!user) {
+        return false
+    }
+
+    return user
+}
+
 
 exports.hasUser = hasUser
 exports.createUser = createUser
 exports.updateBaseMsg = updateBaseMsg
+exports.updatePassword = updatePassword
