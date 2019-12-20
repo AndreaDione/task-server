@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 20:10:14 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-18 20:18:10
+ * @Last Modified time: 2019-12-20 16:34:53
  * @desc task 业务逻辑
  */
 const model = require('../database/models')
@@ -44,4 +44,37 @@ async function updateTask(id, option) {
     return task
 }
 
+/**
+ * 删除任务
+ * @param {int} id
+ * 
+ * @returns {boolean} success is true, fail is false 
+ */
+async function deleteTask(id) {
+    let task = await model.Task.destroy({
+        where: {
+            id
+        }
+    })
+    console.log(task, 'delete')
+
+    if (!task) {
+        return false
+    }
+
+    return true
+}
+
+/**
+ * 查询任务
+ * @param {Array} keys 关键字数组
+ * @param {int} page 页码
+ * @param {int} limit 条目
+ */
+async function search(keys, page, limit) {
+
+}
+
 exports.createTask = createTask
+exports.updateTask = updateTask
+exports.deleteTask = deleteTask

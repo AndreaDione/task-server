@@ -2,13 +2,14 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 16:17:48 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-18 19:56:05
+ * @Last Modified time: 2019-12-20 16:42:43
  * @desc 任务API
  */
 
 var express = require('express');
 var router = express.Router();
 const formatDate = require('../utlis/time')
+const Task = require('../controller/task')
 
 /**
  * API要求
@@ -19,33 +20,27 @@ const formatDate = require('../utlis/time')
  */
 
 /**
+ * 查询任务
+ */
+router.get('/search', async(req, res, next) => {
+
+})
+
+
+/**
  * 新增任务
  */
 router.post('/edit', async(req, res, next) => {
-    let {
-        publisher,
-        phone,
-        title,
-        content,
-        status,
-        address,
-        money
-    } = req.body
+    let { option } = req.body
         /**
          * 这里要做一些逻辑处理
          */
         //更新时间
-    let lastModify = formatDate(new Date().getTime())
-    let task = await Task.create({
-        publisher,
-        phone,
-        title,
-        content,
-        status,
-        address,
-        money,
-        lastModify
-    })
+    option.lastModify = formatDate(new Date().getTime())
+
+    console.log(option)
+
+    let task = await Task.createTask(option)
     if (!task) {
         return res.json({
             message: '新增任务失败',
@@ -53,7 +48,7 @@ router.post('/edit', async(req, res, next) => {
         })
     }
 
-    let resMsg = 1 == status ? '任务发布成功' : '任务添加成功'
+    let resMsg = 1 == option.status ? '任务发布成功' : '任务添加成功'
     res.json({
         message: resMsg,
         success: true
@@ -61,17 +56,53 @@ router.post('/edit', async(req, res, next) => {
 })
 
 /**
- * 修改任务内容
+ * 更新任务
+ * 
+ * 这里面包括状态
  */
 router.put('/edit', async(req, res, next) => {
+    let { id, option } = req.body
+    try {
+        let task = await Task.updateTask(id, option)
+            //更新修改时间
+        option.lastModify = formatDate(new Date().getTime())
+        if (!task) {
+            return res.json({
+                message: '更新任务失败',
+                success: false
+            })
+        }
 
+        res.json({
+            message: '更新任务成功',
+            success: true
+        })
+    } catch (error) {
+        next(error)
+    }
 })
 
 /**
- * 修改任务状态
+ * 删除任务
  */
-router.put('/status', async(req, res, next) => {
+router.delete('/edit', async(req, res, next) => {
+    let { id } = req.body
+    try {
+        let task = await Task.deleteTask(id)
+        if (!task) {
+            return res.json({
+                message: '删除失败',
+                success: false
+            })
+        }
 
+        res.json({
+            message: '删除成功',
+            success: true
+        })
+    } catch (error) {
+        next(error)
+    }
 })
 
 
