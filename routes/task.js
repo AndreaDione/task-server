@@ -1,8 +1,8 @@
 /*
  * @Author: Andrea 
  * @Date: 2019-12-18 16:17:48 
- * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-20 16:42:43
+ * @Last Modified by: Andrea Dione
+ * @Last Modified time: 2019-12-23 17:05:48
  * @desc 任务API
  */
 
@@ -22,7 +22,38 @@ const Task = require('../controller/task')
 /**
  * 查询任务
  */
-router.get('/search', async(req, res, next) => {
+router.post('/search', async(req, res, next) => {
+    let {limit, page, keys} = req.body
+    limit = limit || 10
+    page = page || 1
+    try {
+        if(typeof keys !== 'string' || !(keys instanceof String)) {
+            throw new Error('keys error!')
+        }
+
+        keys = keys.split(/\s+/,g)
+        keys.map(item => {
+            return `%${item}%`
+        })
+        console.log(keys, 'test')
+
+        let list = await Task.search(keys, page, limit)
+
+        if(!list) {
+            return res.json({
+                message: '任务查询失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '任务列表查询成功',
+            success: true,
+            list
+        })
+    } catch (error) {
+        next(error)
+    }
 
 })
 

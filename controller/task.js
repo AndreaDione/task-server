@@ -1,8 +1,8 @@
 /*
  * @Author: Andrea 
  * @Date: 2019-12-18 20:10:14 
- * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-20 16:34:53
+ * @Last Modified by: Andrea Dione
+ * @Last Modified time: 2019-12-23 17:05:47
  * @desc task 业务逻辑
  */
 const model = require('../database/models')
@@ -70,11 +70,44 @@ async function deleteTask(id) {
  * @param {Array} keys 关键字数组
  * @param {int} page 页码
  * @param {int} limit 条目
+ * 
+ * order :根据时间倒序排序
+ * limit :返回的条目
+ * offset:跳过n条（从第n+1条开始）
  */
-async function search(keys, page, limit) {
+async function searchTasks(keys, page, limit) {
+    let list = await model.Task.findAll({
+        where: {
+            '$or': [
+                {name: keys},
+                {publisher: keys},
+                {money: keys}
+            ]
+        },
+        order: [
+            'lastModify', 'DESC'
+        ],
+        limit: limit,
+        offset: limit * (page - 1)
+    })
+}
 
+/**
+ * 查询我的任务列表 -- 连表查询
+ * @param {Array} keys 
+ * @param {int} page 
+ * @param {int} limit 
+ * @param {string} type publish(default) or receive 
+ */
+async function searchMyTasks(keys, page, limit, type='publish') {
+    if('receive' === type) {
+        //我接收的任务列表
+    }else {
+        //我发布的任务列表
+    }
 }
 
 exports.createTask = createTask
 exports.updateTask = updateTask
 exports.deleteTask = deleteTask
+exports.searchTasks = searchTasks
