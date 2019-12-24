@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 16:17:48 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-23 21:41:43
+ * @Last Modified time: 2019-12-24 21:12:02
  * @desc 任务API
  */
 
@@ -132,6 +132,67 @@ router.delete('/edit', async(req, res, next) => {
     } catch (error) {
         next(error)
     }
+})
+
+/**
+ * 加入任务
+ */
+router.post('/receive', async(req, res, next) => {
+    let { taskID, receiverID } = req.body
+    let date = formatDate(new Date())
+
+    try {
+        let result = await Task.joinTask({
+            taskID,
+            receiverID,
+            date
+        })
+
+        if (!result) {
+            return res.json({
+                message: '接收任务失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '接收任务成功',
+            success: true
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+/**
+ * 退出任务
+ */
+router.delete('/receive', async(req, res, next) => {
+    let { taskID, receiverID } = req.body
+    try {
+        let result = await Task.leaveTask(taskID, receiverID)
+
+        if (!result) {
+            return res.json({
+                message: '退出任务失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '退出任务成功',
+            success: true
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+/**
+ * 踢出任务
+ */
+router.delete('/getout', async(req, res, next) => {
+
 })
 
 

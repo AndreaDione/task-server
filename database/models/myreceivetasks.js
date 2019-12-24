@@ -1,8 +1,16 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
     const MyReceiveTasks = sequelize.define('MyReceiveTasks', {
-        taskID: DataTypes.INTEGER,
-        receiverID: DataTypes.STRING,
+        taskID: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false
+        },
+        receiverID: {
+            type: DataTypes.STRING,
+            primaryKey: true,
+            allowNull: false
+        },
         date: DataTypes.DATE
     }, {
         timestamps: false

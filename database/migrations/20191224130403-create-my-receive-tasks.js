@@ -2,17 +2,15 @@
 module.exports = {
     up: (queryInterface, Sequelize) => {
         return queryInterface.createTable('MyReceiveTasks', {
-            id: {
-                allowNull: false,
-                autoIncrement: true,
-                primaryKey: true,
-                type: Sequelize.INTEGER
-            },
             taskID: {
-                type: Sequelize.INTEGER
+                type: Sequelize.INTEGER,
+                primaryKey: true,
+                allowNull: false
             },
             receiverID: {
-                type: Sequelize.STRING
+                type: Sequelize.STRING,
+                primaryKey: true,
+                allowNull: false
             },
             date: {
                 type: Sequelize.DATE

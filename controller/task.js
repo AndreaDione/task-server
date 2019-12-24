@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 20:10:14 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-23 21:41:43
+ * @Last Modified time: 2019-12-24 21:12:01
  * @desc task 业务逻辑
  */
 const model = require('../database/models')
@@ -53,14 +53,15 @@ async function updateTask(id, option) {
  * @returns {boolean} success is true, fail is false 
  */
 async function deleteTask(id) {
-    let task = await model.Task.destroy({
+    //result表示受影响的行数，0表示不受影响
+    let result = await model.Task.destroy({
         where: {
             id
         }
     })
-    console.log(task, 'delete')
+    console.log(result, 'delete')
 
-    if (!task) {
+    if (!result || result <= 0) {
         return false
     }
 
@@ -117,7 +118,45 @@ async function searchMyTasks(keys, page, limit, type = 'publish') {
     }
 }
 
+
+/**
+ * 加入任务
+ * @param {object} option join in task's option: taskID, receiverID and joining time
+ */
+async function joinTask(option) {
+    let myTask = await model.MyReceiveTasks.create(option)
+    if (!myTask) {
+        return false
+    }
+
+    return myTask
+}
+
+/**
+ * 退出任务
+ * @param {int} taskID 
+ * @param {string} receiverID 
+ */
+async function leaveTask(taskID, receiverID) {
+    //result表示受影响的行数，0为不受影响
+    let result = await model.MyReceiveTasks.destroy({
+        where: {
+            taskID,
+            receiverID
+        }
+    })
+
+    console.log(result, 'leave')
+    if (!result || result <= 0) {
+        return false
+    }
+
+    return true
+}
+
 exports.createTask = createTask
 exports.updateTask = updateTask
 exports.deleteTask = deleteTask
 exports.searchTasks = searchTasks
+exports.joinTask = joinTask
+exports.leaveTask = leaveTask
