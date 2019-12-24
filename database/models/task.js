@@ -1,19 +1,23 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
     const Task = sequelize.define('Task', {
-        title: DataTypes.STRING(30),
+        title: DataTypes.STRING,
         content: DataTypes.STRING,
-        publisher: DataTypes.STRING(30),
+        publisherName: DataTypes.STRING,
+        publisherID: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         lastModify: DataTypes.DATE,
         address: DataTypes.STRING,
-        money: DataTypes.DOUBLE(10, 2),
+        money: DataTypes.DOUBLE,
         status: DataTypes.INTEGER,
         phone: {
-            type: DataTypes.STRING(11),
+            type: DataTypes.STRING,
             validate: {
                 is: /^1[3578]\d{9}$/
             }
-        },
+        }
     }, {
         timestamps: false
     });

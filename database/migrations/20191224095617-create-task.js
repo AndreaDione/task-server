@@ -9,13 +9,17 @@ module.exports = {
                 type: Sequelize.INTEGER
             },
             title: {
-                type: Sequelize.STRING(30)
+                type: Sequelize.STRING
             },
             content: {
                 type: Sequelize.STRING
             },
-            publisher: {
-                type: Sequelize.STRING(30)
+            publisherName: {
+                type: Sequelize.STRING
+            },
+            publisherID: {
+                type: Sequelize.STRING,
+                allowNull: false
             },
             lastModify: {
                 type: Sequelize.DATE
@@ -24,13 +28,13 @@ module.exports = {
                 type: Sequelize.STRING
             },
             money: {
-                type: Sequelize.DOUBLE(10, 2)
+                type: Sequelize.DOUBLE
             },
             status: {
                 type: Sequelize.INTEGER
             },
             phone: {
-                type: Sequelize.STRING(11)
+                type: Sequelize.STRING
             }
         });
     },
