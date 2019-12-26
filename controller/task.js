@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 20:10:14 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-24 21:12:01
+ * @Last Modified time: 2019-12-26 16:22:50
  * @desc task 业务逻辑
  */
 const model = require('../database/models')
@@ -18,11 +18,11 @@ const { Op } = Sequelize
 async function createTask(option) {
     let task = await model.Task.create(option)
 
-    if (task) {
-        return task
+    if (!task) {
+        return false
     }
 
-    return false
+    return task
 }
 
 /**

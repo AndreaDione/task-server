@@ -4,7 +4,8 @@
         "password": "772803113.and.",
         "database": "task-app-development",
         "host": "127.0.0.1",
-        "dialect": "mysql"
+        "dialect": "mysql",
+        "timezone": "+08:00"
     },
     "test": {
         "username": "root",
@@ -12,7 +13,8 @@
         "database": "database_test",
         "host": "127.0.0.1",
         "dialect": "mysql",
-        "operatorsAliases": false
+        "operatorsAliases": false,
+        "timezone": "+08:00"
     },
     "production": {
         "username": "root",
@@ -20,6 +22,7 @@
         "database": "database_production",
         "host": "127.0.0.1",
         "dialect": "mysql",
-        "operatorsAliases": false
+        "operatorsAliases": false,
+        "timezone": "+08:00"
     }
 }
