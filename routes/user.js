@@ -24,7 +24,8 @@ router.post('/register', async(req, res, next) => {
         if (user) {
 
             return res.json({
-                message: '该用户账号已存在'
+                message: '该用户账号已存在',
+                success: false
             })
         }
 
@@ -93,7 +94,15 @@ router.post('/login', async(req, res, next) => {
         res.json({
             message: '登录成功',
             success: true,
-            token
+            token,
+            user: {
+                phone: user.phone,
+                email: user.email,
+                avatar: user.avatar,
+                labels: user.labels,
+                account: user.account,
+                name: user.name
+            }
         })
     } catch (error) {
         error.message = '登录期间遇到了错误'
@@ -130,12 +139,13 @@ router.post('/personal', async(req, res, next) => {
  * 修改用户信息
  */
 router.put('/personal', async(req, res, next) => {
-    let { token } = req.body
+    let token = req.headers.authorization
+    // console.log(token)
     try {
         let { account } = await Token.decodeToken(token)
         let { option } = req.body
         let user = await User.updatePersonMsg(account, option)
-            // console.log(user, '修改信息')
+            // console.log(user, account, '修改信息')
         if (!user) {
             return res.json({
                 message: '修改失败',
@@ -156,7 +166,7 @@ router.put('/personal', async(req, res, next) => {
  * 修改密码
  */
 router.put('/rePassword', async(req, res, next) => {
-    let { token, password, newPass } = req.body
+    let token = req.headers.authorization
     try {
         let { account } = await Token.decodeToken(token)
 
@@ -168,6 +178,8 @@ router.put('/rePassword', async(req, res, next) => {
                 success: false
             })
         }
+
+        let { password, newPass } = req.body
 
         //进行密码校验
         let flag = await Bcrypt.compare(password, user.password)
