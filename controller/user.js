@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 19:49:42 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-18 20:17:37
+ * @Last Modified time: 2019-12-28 12:36:54
  * 
  * @desc User类逻辑业务 
  */
@@ -49,19 +49,14 @@ async function createUser(option) {
  * @param {string} account 
  * @param {object} option 
  */
-async function updateBaseMsg(account, option) {
+async function updatePersonMsg(account, option) {
     console.log(option, account)
-    let { name, phone, email, avatar } = option
-    name = name || ''
-    phone = phone || ''
-    email = email || ''
-    avatar = avatar || ''
-    let user = await model.User.update({
-        name,
-        phone,
-        email,
-        avatar
-    }, {
+        // let { name, phone, email, avatar } = option
+        // name = name || ''
+        // phone = phone || ''
+        // email = email || ''
+        // avatar = avatar || ''
+    let user = await model.User.update(option, {
         where: {
             account
         }
@@ -97,5 +92,5 @@ async function updatePassword(account, password) {
 
 exports.hasUser = hasUser
 exports.createUser = createUser
-exports.updateBaseMsg = updateBaseMsg
-exports.updatePassword = updatePassword
+exports.updatePersonMsg = updatePersonMsg
+    // exports.updatePassword = updatePassword

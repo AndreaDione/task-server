@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 20:29:00 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-26 16:39:07
+ * @Last Modified time: 2019-12-28 12:54:05
  */
 
 
@@ -23,6 +23,26 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// 跨域设置
+app.use((req, res, next) => {
+    // 在不同的域名下发出的请求也可以携带cookie
+    res.header('Access-Control-Allow-Credentials', true)
+
+    // 域名跨域
+    res.header('Access-Control-Allow-Origin', '*')
+
+    // 方法跨域
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS')
+
+    // 允许前台获得的除 Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma 这几张基本响应头之外的响应头
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With')
+    if (req.method == 'OPTIONS') {
+        res.sendStatus(200)
+    } else {
+        next()
+    }
+})
 
 app.use('/user', usersRouter);
 app.use('/task', tasksRouter);

@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
             validate: {
                 is: /^1[3578]\d{9}$/
             }
-        }
+        },
+        labels: DataTypes.INTEGER
     }, {
         timestamps: false
     });

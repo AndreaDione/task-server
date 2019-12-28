@@ -35,6 +35,9 @@ module.exports = {
             },
             phone: {
                 type: Sequelize.STRING
+            },
+            labels: {
+                type: Sequelize.STRING
             }
         });
     },

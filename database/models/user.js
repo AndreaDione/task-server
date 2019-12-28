@@ -29,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
                 is: /^[\w-]+([\.\w-]+)?@[\w-]+([\.\w-]+)?\.[a-z]{2,}$/
             }
         },
-        avatar: DataTypes.STRING
+        avatar: DataTypes.STRING,
+        labels: DataTypes.STRING
     }, {
         timestamps: false
     });

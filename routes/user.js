@@ -133,13 +133,8 @@ router.put('/personal', async(req, res, next) => {
     let { token } = req.body
     try {
         let { account } = await Token.decodeToken(token)
-        let { name, phone, email, avatar } = req.body
-        let user = await User.updateBaseMsg(account, {
-                name,
-                phone,
-                email,
-                avatar
-            })
+        let { option } = req.body
+        let user = await User.updatePersonMsg(account, option)
             // console.log(user, '修改信息')
         if (!user) {
             return res.json({
@@ -185,7 +180,9 @@ router.put('/rePassword', async(req, res, next) => {
 
         //新密码要进行加密处理
         newPass = await Bcrypt.getHashPass(newPass)
-        user = await User.updatePassword(account, newPass)
+        user = await User.updatePersonMsg(account, {
+            password: newPass
+        })
         if (!user) {
             return res.json({
                 message: '修改密码失败',

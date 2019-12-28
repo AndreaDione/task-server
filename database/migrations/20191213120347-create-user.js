@@ -23,6 +23,9 @@ module.exports = {
             },
             avatar: {
                 type: Sequelize.STRING
+            },
+            labels: {
+                type: Sequelize.STRING
             }
         });
     },
