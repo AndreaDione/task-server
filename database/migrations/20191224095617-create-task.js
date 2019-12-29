@@ -28,7 +28,7 @@ module.exports = {
                 type: Sequelize.STRING
             },
             money: {
-                type: Sequelize.DOUBLE
+                type: Sequelize.STRING
             },
             status: {
                 type: Sequelize.INTEGER

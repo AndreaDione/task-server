@@ -24,7 +24,7 @@ const Task = require('../controller/task')
  */
 router.post('/search', async(req, res, next) => {
     let { limit, page, keys } = req.body
-    limit = limit || 10
+    limit = limit || 8
     page = page || 1
     try {
         // console.log(typeof keys)
@@ -66,8 +66,8 @@ router.post('/edit', async(req, res, next) => {
          */
         //更新时间
     option.lastModify = formatDate(new Date().getTime())
-
-    console.log(option)
+    option.labels = option.labels.join('-')
+    // console.log(option)
 
     let task = await Task.createTask(option)
     if (!task) {

@@ -85,10 +85,13 @@ async function searchTasks(keys, page, limit) {
                 title: {
                     [Op.like]: keys
                 },
-                publisher: {
+                publisherName: {
                     [Op.like]: keys
                 },
                 money: {
+                    [Op.like]: keys
+                },
+                address: {
                     [Op.like]: keys
                 }
             }
@@ -98,6 +101,15 @@ async function searchTasks(keys, page, limit) {
         ],
         limit: limit,
         offset: limit * (page - 1)
+    })
+
+    list.map(item => {
+        if(item.labels) {
+            item.labels = item.labels.split("-")
+            // console.log(item.labels.split("-"))
+        }else {
+            item.labels = []
+        }
     })
 
     return list
