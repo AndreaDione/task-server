@@ -7,6 +7,7 @@
  */
 const model = require('../database/models')
 const Sequelize = require('sequelize')
+const formatDate = require('../utlis/time')
 const { Op } = Sequelize
 
 /**
@@ -32,10 +33,11 @@ async function createTask(option) {
  * 
  * @return {object}/{boolean} success return object, not return false(boolean)
  */
-async function updateTask(id, option) {
+async function updateTask(id, publisherID, option) {
     let task = await model.Task.update(option, {
         where: {
-            id
+            id,
+            publisherID
         }
     })
 
@@ -52,14 +54,15 @@ async function updateTask(id, option) {
  * 
  * @returns {boolean} success is true, fail is false 
  */
-async function deleteTask(id) {
+async function deleteTask(id, publisherID) {
     //result表示受影响的行数，0表示不受影响
     let result = await model.Task.destroy({
         where: {
-            id
+            id,
+            publisherID
         }
     })
-    console.log(result, 'delete')
+    // console.log(result, 'delete')
 
     if (!result || result <= 0) {
         return false
@@ -73,13 +76,17 @@ async function deleteTask(id) {
  * @param {string} keys 关键词
  * @param {int} page 页码
  * @param {int} limit 条目,找不到就返回[]
+ * @param {Object} others 其他搜索条件
  * 
  * order :根据时间倒序排序
  * limit :返回的条目
  * offset:跳过n条（从第n+1条开始）
  */
-async function searchTasks(keys, page, limit) {
-    let list = await model.Task.findAll({
+async function searchTasks(keys, page, limit, others=null) {
+    let option = {
+        attributes: { 
+            exclude: ['content'] 
+        },
         where: {
             [Op.or]: {
                 title: {
@@ -101,35 +108,69 @@ async function searchTasks(keys, page, limit) {
         ],
         limit: limit,
         offset: limit * (page - 1)
-    })
+    } 
+    //添加任务状态
+    if(others.status) {
+        option.where.status = others.status
+    }
+    //判断查询方式
+    let account = '', type = '', result = null
+    if(others.type) {
+        type = others.type
+        account = others.account
+    }
 
-    list.map(item => {
+    if(type == 'receive') {
+        //搜索我接受的任务
+    }else if(type == 'publish') {
+        //搜索我发布的任务
+        //建立表关联关系  当前表（User）的字段： user_name  关联表（userRoom）的字段user_id
+        // model.Task.hasMany(model.MyReceiveTasks, {foreignKey:'id',targetKey:'taskID'})
+        option.where.publisherID = account
+        // option.attributes.include = [[sequelize.fn('COUNT', sequelize.col('publisherID')), 'count']]
+        option.raw = true
+    }
+    
+    result = await model.Task.findAndCountAll(option)
+
+    if(!result) {
+        return false
+    }
+
+    result.rows.map(item => {
+        item.lastModify = formatDate(item.lastModify)
         if(item.labels) {
             item.labels = item.labels.split("-")
-            // console.log(item.labels.split("-"))
         }else {
             item.labels = []
         }
     })
 
-    return list
+    return result
 }
 
 /**
- * 查询我的任务列表 -- 连表查询
- * @param {Array} keys 
- * @param {int} page 
- * @param {int} limit 
- * @param {string} type publish(default) or receive 
+ * 搜索详细任务
+ * @param  {int} id 任务id
+ * @return {Object}    [description]
  */
-async function searchMyTasks(keys, page, limit, type = 'publish') {
-    if ('receive' === type) {
-        //我接收的任务列表
-    } else {
-        //我发布的任务列表
-    }
-}
+async function searchTaskDetails(id, publisherID) {
+    let task = await model.Task.findOne({
+        where: {
+            id,
+            publisherID
+        }
+    })
 
+    if(!task) {
+        return false
+    }
+
+    task.lastModify = formatDate(task.lastModify)
+    task.labels = task.labels.split("-")
+
+    return task
+}
 
 /**
  * 加入任务
@@ -170,5 +211,6 @@ exports.createTask = createTask
 exports.updateTask = updateTask
 exports.deleteTask = deleteTask
 exports.searchTasks = searchTasks
+exports.searchTaskDetails = searchTaskDetails
 exports.joinTask = joinTask
 exports.leaveTask = leaveTask

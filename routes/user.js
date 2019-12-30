@@ -116,7 +116,7 @@ router.post('/login', async(req, res, next) => {
  * 
  */
 router.post('/personal', async(req, res, next) => {
-    let { token } = req.body
+    let token = req.headers.authorization
     try {
         let { account } = await Token.decodeToken(token)
         let user = await User.hasUser(account)
