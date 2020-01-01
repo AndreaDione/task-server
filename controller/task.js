@@ -157,8 +157,7 @@ async function searchTasks(keys, page, limit, others=null) {
 async function searchTaskDetails(id, publisherID) {
     let task = await model.Task.findOne({
         where: {
-            id,
-            publisherID
+            id
         }
     })
 
@@ -167,7 +166,11 @@ async function searchTaskDetails(id, publisherID) {
     }
 
     task.lastModify = formatDate(task.lastModify)
-    task.labels = task.labels.split("-")
+    if(task.labels === null) {
+        task.labels = []
+    }else {
+        task.labels = task.labels.split("-")
+    }
 
     return task
 }
@@ -207,6 +210,26 @@ async function leaveTask(taskID, receiverID) {
     return true
 }
 
+/**
+ * 查询用户是否在任务中
+ * @param  {int}  taskID     [description]
+ * @param  {string}  receiverID [description]
+ * @return {Boolean}            [description]
+ */
+async function isUserInTask(taskID, receiverID) {
+    let result = await model.MyReceiveTasks.findOne({
+        where: {
+            taskID,
+            receiverID
+        }
+    })
+    if(!result) {
+        return false
+    }
+
+    return true
+}
+
 exports.createTask = createTask
 exports.updateTask = updateTask
 exports.deleteTask = deleteTask
@@ -214,3 +237,4 @@ exports.searchTasks = searchTasks
 exports.searchTaskDetails = searchTaskDetails
 exports.joinTask = joinTask
 exports.leaveTask = leaveTask
+exports.isUserInTask = isUserInTask

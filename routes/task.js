@@ -68,13 +68,19 @@ router.post('/search', async(req, res, next) => {
 
 })
 
-router.post('/details', async (req, res, next) => {
-    let token = req.headers.authorization
+/**
+ * 获取任务明细
+ * @param  {[type]} '/details' [description]
+ * @param  {[type]} async      (req,         res, next [description]
+ * @return {[type]}            [description]
+ */
+router.get('/details', async (req, res, next) => {
+    // let token = req.headers.authorization
     try{
-        let {account} = await Token.decodeToken(token)
-        let {id} = req.body
+        // let {account} = await Token.decodeToken(token)
+        const {id} = req.query
 
-        let task = await Task.searchTaskDetails(id, account)
+        let task = await Task.searchTaskDetails(id)
 
         if(!task) {
             return res.json({
@@ -139,7 +145,7 @@ router.put('/edit', async(req, res, next) => {
         let task = await Task.updateTask(id, account, option)
         //更新修改时间
         option.lastModify = formatDate(new Date().getTime())
-        if (!task) {
+        if (!task || task<=0) {
             return res.json({
                 message: '更新任务失败',
                 success: false
@@ -164,7 +170,7 @@ router.delete('/edit', async(req, res, next) => {
         let token = req.headers.authorization
         let {account} = await Token.decodeToken(token)
         let task = await Task.deleteTask(id, account)
-        if (!task) {
+        if (!task || task<=0) {
             return res.json({
                 message: '删除失败',
                 success: false
@@ -184,13 +190,16 @@ router.delete('/edit', async(req, res, next) => {
  * 加入任务
  */
 router.post('/receive', async(req, res, next) => {
-    let { taskID, receiverID } = req.body
+    let { taskID } = req.body
     let date = formatDate(new Date())
 
     try {
+        let token = req.headers.authorization
+        let {account} = await Token.decodeToken(token)
+        
         let result = await Task.joinTask({
             taskID,
-            receiverID,
+            receiverID: account,
             date
         })
 
@@ -211,12 +220,33 @@ router.post('/receive', async(req, res, next) => {
 })
 
 /**
+ * 判断用户是否在该任务中
+ * 
+ * @return {Boolean}        true/false
+ */
+router.get('/receive', async(req, res, next) => {
+    let {taskID} = req.query
+    try{
+        let token = req.headers.authorization
+        let {account} = await Token.decodeToken(token)
+        let result = await Task.isUserInTask(taskID, account)
+        res.json({
+            result
+        })
+    }catch(error){
+        next(error)
+    }
+})
+
+/**
  * 退出任务
  */
 router.delete('/receive', async(req, res, next) => {
-    let { taskID, receiverID } = req.body
+    let { taskID } = req.body
     try {
-        let result = await Task.leaveTask(taskID, receiverID)
+        let token = req.headers.authorization
+        let {account} = await Token.decodeToken(token)
+        let result = await Task.leaveTask(taskID, account)
 
         if (!result) {
             return res.json({
