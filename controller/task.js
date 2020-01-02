@@ -2,10 +2,10 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 20:10:14 
  * @Last Modified by: Andrea
- * @Last Modified time: 2020-01-02 16:45:30
+ * @Last Modified time: 2020-01-02 19:58:49
  * @desc task 业务逻辑
  */
-const model = require('../database/models')
+const model = require('../database/index.js')
 const Sequelize = require('sequelize')
 const formatDate = require('../utlis/time')
 const { Op } = Sequelize
@@ -13,7 +13,7 @@ const { Op } = Sequelize
 /**
  * 定义关系模型
  */
-model.Task.hasMany(model.MyReceiveTasks, { as: 'rece', foreignKey: 'taskID' })
+// model.Task.hasMany(model.MyReceiveTasks, { as: 'rece', foreignKey: 'taskID' })
 
 /**
  * 新增任务
@@ -157,6 +157,10 @@ async function searchTasks(keys, page, limit, others = null) {
             item.labels = item.labels.split("-")
         } else {
             item.labels = []
+        }
+
+        if(item['rece.date']) {
+            item['rece.date'] = formatDate(item['rece.date'])
         }
     })
 

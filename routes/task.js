@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 16:17:48 
  * @Last Modified by: Andrea
- * @Last Modified time: 2020-01-02 15:02:25
+ * @Last Modified time: 2020-01-02 20:00:40
  * @desc 任务API
  */
 
@@ -24,15 +24,15 @@ const Token = require('../utlis/token')
  * 查询任务
  */
 router.post('/search', async(req, res, next) => {
-    // let { limit, page, keys } = req.body
-    let { limit, page, keys, account } = req.body
+    let { limit, page, keys } = req.body
+        // let { limit, page, keys, account } = req.body
     let others = {}
     limit = limit || 8
     page = page || 1
     if (req.body.type) {
         //判断查询类型
-        // let token = req.headers.authorization
-        // let {account} = await Token.decodeToken(token)
+        let token = req.headers.authorization
+        let { account } = await Token.decodeToken(token)
         others.type = req.body.type
         others.account = account
     }
