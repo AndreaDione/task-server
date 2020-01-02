@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 16:17:48 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-24 21:12:02
+ * @Last Modified time: 2020-01-02 15:02:25
  * @desc 任务API
  */
 
@@ -24,18 +24,19 @@ const Token = require('../utlis/token')
  * 查询任务
  */
 router.post('/search', async(req, res, next) => {
-    let { limit, page, keys } = req.body
+    // let { limit, page, keys } = req.body
+    let { limit, page, keys, account } = req.body
     let others = {}
     limit = limit || 8
     page = page || 1
-    if(req.body.type) {
+    if (req.body.type) {
         //判断查询类型
-        let token = req.headers.authorization
-        let {account} = await Token.decodeToken(token)
+        // let token = req.headers.authorization
+        // let {account} = await Token.decodeToken(token)
         others.type = req.body.type
         others.account = account
     }
-    if(req.body.status) {
+    if (req.body.status) {
         others.status = req.body.status
     }
     try {
@@ -74,15 +75,15 @@ router.post('/search', async(req, res, next) => {
  * @param  {[type]} async      (req,         res, next [description]
  * @return {[type]}            [description]
  */
-router.get('/details', async (req, res, next) => {
+router.get('/details', async(req, res, next) => {
     // let token = req.headers.authorization
-    try{
+    try {
         // let {account} = await Token.decodeToken(token)
-        const {id} = req.query
+        const { id } = req.query
 
         let task = await Task.searchTaskDetails(id)
 
-        if(!task) {
+        if (!task) {
             return res.json({
                 message: '获取任务明细失败',
                 success: false
@@ -94,7 +95,7 @@ router.get('/details', async (req, res, next) => {
             success: true,
             task
         })
-    }catch(error) {
+    } catch (error) {
         next(error)
     }
 })
@@ -105,17 +106,17 @@ router.get('/details', async (req, res, next) => {
  */
 router.post('/edit', async(req, res, next) => {
     let { option } = req.body
-    /**
-     * 这里要做一些逻辑处理
-     */
-    //解析token
+        /**
+         * 这里要做一些逻辑处理
+         */
+        //解析token
     let token = req.headers.authorization
-    let {account} = await Token.decodeToken(token)
+    let { account } = await Token.decodeToken(token)
     option.publisherID = account
-    //更新时间
+        //更新时间
     option.lastModify = formatDate(new Date().getTime())
     option.labels = option.labels.join('-')
-    // console.log(option)
+        // console.log(option)
 
     let task = await Task.createTask(option)
     if (!task) {
@@ -141,11 +142,11 @@ router.put('/edit', async(req, res, next) => {
     let { id, option } = req.body
     try {
         let token = req.headers.authorization
-        let {account} = await Token.decodeToken(token)
+        let { account } = await Token.decodeToken(token)
         let task = await Task.updateTask(id, account, option)
-        //更新修改时间
+            //更新修改时间
         option.lastModify = formatDate(new Date().getTime())
-        if (!task || task<=0) {
+        if (!task || task <= 0) {
             return res.json({
                 message: '更新任务失败',
                 success: false
@@ -168,9 +169,9 @@ router.delete('/edit', async(req, res, next) => {
     let { id } = req.body
     try {
         let token = req.headers.authorization
-        let {account} = await Token.decodeToken(token)
+        let { account } = await Token.decodeToken(token)
         let task = await Task.deleteTask(id, account)
-        if (!task || task<=0) {
+        if (!task || task <= 0) {
             return res.json({
                 message: '删除失败',
                 success: false
@@ -195,8 +196,8 @@ router.post('/receive', async(req, res, next) => {
 
     try {
         let token = req.headers.authorization
-        let {account} = await Token.decodeToken(token)
-        
+        let { account } = await Token.decodeToken(token)
+
         let result = await Task.joinTask({
             taskID,
             receiverID: account,
@@ -225,15 +226,15 @@ router.post('/receive', async(req, res, next) => {
  * @return {Boolean}        true/false
  */
 router.get('/receive', async(req, res, next) => {
-    let {taskID} = req.query
-    try{
+    let { taskID } = req.query
+    try {
         let token = req.headers.authorization
-        let {account} = await Token.decodeToken(token)
+        let { account } = await Token.decodeToken(token)
         let result = await Task.isUserInTask(taskID, account)
         res.json({
             result
         })
-    }catch(error){
+    } catch (error) {
         next(error)
     }
 })
@@ -245,7 +246,7 @@ router.delete('/receive', async(req, res, next) => {
     let { taskID } = req.body
     try {
         let token = req.headers.authorization
-        let {account} = await Token.decodeToken(token)
+        let { account } = await Token.decodeToken(token)
         let result = await Task.leaveTask(taskID, account)
 
         if (!result) {

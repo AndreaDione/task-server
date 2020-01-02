@@ -2,13 +2,18 @@
  * @Author: Andrea 
  * @Date: 2019-12-18 20:10:14 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-26 16:22:50
+ * @Last Modified time: 2020-01-02 16:45:30
  * @desc task 业务逻辑
  */
 const model = require('../database/models')
 const Sequelize = require('sequelize')
 const formatDate = require('../utlis/time')
 const { Op } = Sequelize
+
+/**
+ * 定义关系模型
+ */
+model.Task.hasMany(model.MyReceiveTasks, { as: 'rece', foreignKey: 'taskID' })
 
 /**
  * 新增任务
@@ -57,12 +62,12 @@ async function updateTask(id, publisherID, option) {
 async function deleteTask(id, publisherID) {
     //result表示受影响的行数，0表示不受影响
     let result = await model.Task.destroy({
-        where: {
-            id,
-            publisherID
-        }
-    })
-    // console.log(result, 'delete')
+            where: {
+                id,
+                publisherID
+            }
+        })
+        // console.log(result, 'delete')
 
     if (!result || result <= 0) {
         return false
@@ -82,66 +87,75 @@ async function deleteTask(id, publisherID) {
  * limit :返回的条目
  * offset:跳过n条（从第n+1条开始）
  */
-async function searchTasks(keys, page, limit, others=null) {
+async function searchTasks(keys, page, limit, others = null) {
     let option = {
-        attributes: { 
-            exclude: ['content'] 
-        },
-        where: {
-            [Op.or]: {
-                title: {
-                    [Op.like]: keys
-                },
-                publisherName: {
-                    [Op.like]: keys
-                },
-                money: {
-                    [Op.like]: keys
-                },
-                address: {
-                    [Op.like]: keys
+            attributes: {
+                exclude: ['content']
+            },
+            where: {
+                [Op.or]: {
+                    title: {
+                        [Op.like]: keys
+                    },
+                    publisherName: {
+                        [Op.like]: keys
+                    },
+                    money: {
+                        [Op.like]: keys
+                    },
+                    address: {
+                        [Op.like]: keys
+                    }
                 }
-            }
-        },
-        order: [
-            ['lastModify', 'DESC']
-        ],
-        limit: limit,
-        offset: limit * (page - 1)
-    } 
-    //添加任务状态
-    if(others.status) {
+            },
+            order: [
+                ['lastModify', 'DESC']
+            ],
+            limit: limit,
+            offset: limit * (page - 1)
+        }
+        //添加任务状态
+    if (others.status) {
         option.where.status = others.status
     }
     //判断查询方式
-    let account = '', type = '', result = null
-    if(others.type) {
+    let account = '',
+        type = '',
+        result = null
+    if (others.type) {
         type = others.type
         account = others.account
     }
 
-    if(type == 'receive') {
+    if (type == 'receive') {
         //搜索我接受的任务
-    }else if(type == 'publish') {
+        option.include = { // include关键字表示关联查询
+            model: model.MyReceiveTasks, // 指定关联的model
+            as: 'rece',
+            where: {
+                receiverID: account
+            }
+        }
+        option.raw = true
+    } else if (type == 'publish') {
         //搜索我发布的任务
         //建立表关联关系  当前表（User）的字段： user_name  关联表（userRoom）的字段user_id
         // model.Task.hasMany(model.MyReceiveTasks, {foreignKey:'id',targetKey:'taskID'})
         option.where.publisherID = account
-        // option.attributes.include = [[sequelize.fn('COUNT', sequelize.col('publisherID')), 'count']]
         option.raw = true
     }
-    
+
     result = await model.Task.findAndCountAll(option)
 
-    if(!result) {
+    if (!result) {
         return false
     }
 
     result.rows.map(item => {
         item.lastModify = formatDate(item.lastModify)
-        if(item.labels) {
+        if (item.labels) {
             item.labels = item.labels.split("-")
-        }else {
+        } else {
             item.labels = []
         }
     })
@@ -161,14 +175,14 @@ async function searchTaskDetails(id, publisherID) {
         }
     })
 
-    if(!task) {
+    if (!task) {
         return false
     }
 
     task.lastModify = formatDate(task.lastModify)
-    if(task.labels === null) {
+    if (task.labels === null) {
         task.labels = []
-    }else {
+    } else {
         task.labels = task.labels.split("-")
     }
 
@@ -223,7 +237,7 @@ async function isUserInTask(taskID, receiverID) {
             receiverID
         }
     })
-    if(!result) {
+    if (!result) {
         return false
     }
 
