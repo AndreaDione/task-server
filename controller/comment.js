@@ -8,6 +8,7 @@
 
 const model = require('../database/models')
 const Sequelize = require('sequelize')
+const formatDate = require('../utlis/time')
 const { Op } = Sequelize
 
 /**
@@ -92,7 +93,32 @@ async function searchComment(masterID, page, limit) {
         return false
     }
 
+    // list.map(item => {
+    //     item.commentDate = formatDate(item.commentDate)
+
+    //     if(item.replyDate) {
+    //         item.replyDate = formatDate(item.replyDate)
+    //     }
+    // })
+
     return list
+}
+
+/**
+ * 获取用户的评价平均分
+ * @param  {[type]} masterID [description]
+ * @return {[type]}          [description]
+ */
+async function getAvgScore(masterID) {
+    let result = await model.Comment.findAll({
+        attributes: [[Sequelize.fn('AVG', Sequelize.col('score')), 'avgScore']]
+    })
+
+    if(!result) {
+        return false
+    }
+
+    return result[0].get('avgScore')
 }
 
 
@@ -100,3 +126,4 @@ exports.createComment = createComment
 exports.deleteComment = deleteComment
 exports.editReply = editReply
 exports.searchComment = searchComment
+exports.getAvgScore = getAvgScore

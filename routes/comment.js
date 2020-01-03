@@ -112,11 +112,10 @@ router.put('/', async(req, res, next) => {
 /**
  * 搜索评论
  */
-router.post('/search', async(req, res, next) => {
-    let { masterID, page, limit } = req.body
-
-    page = page || 1
-    limit = limit || 10
+router.get('/search', async(req, res, next) => {
+    let { masterID, page, limit } = req.query
+    page = Number(page) || 1
+    limit = Number(limit) || 10
 
     try {
         let list = await Comment.searchComment(masterID, page, limit)
@@ -133,6 +132,32 @@ router.post('/search', async(req, res, next) => {
             list
         })
     } catch (error) {
+        next(error)
+    }
+})
+
+/**
+ * 获取用户评价平均分
+ */
+router.get('/avgScore', async(req, res, next) => {
+    const {masterID} = req.query
+
+    try{
+        let score = await Comment.getAvgScore(masterID)
+
+        if(!score){
+            return res.json({
+                message: '获取用户评价平均分失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '获取用户评价平均分成功',
+            success: true,
+            score
+        })
+    }catch(error) {
         next(error)
     }
 })
