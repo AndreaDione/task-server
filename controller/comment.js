@@ -78,7 +78,7 @@ async function editReply(id, reply, replyDate) {
  * @param {int} limit 
  */
 async function searchComment(masterID, page, limit) {
-    let list = await model.Comment.findAll({
+    let result = await model.Comment.findAndCountAll({
         where: {
             masterID
         },
@@ -89,19 +89,19 @@ async function searchComment(masterID, page, limit) {
         offset: limit * (page - 1)
     })
 
-    if (!list) {
+    if (!result) {
         return false
     }
 
-    // list.map(item => {
-    //     item.commentDate = formatDate(item.commentDate)
+    result.rows.map(item => {
+        item.commentDate = formatDate(item.commentDate)
 
-    //     if(item.replyDate) {
-    //         item.replyDate = formatDate(item.replyDate)
-    //     }
-    // })
+        if(item.replyDate) {
+            item.replyDate = formatDate(item.replyDate)
+        }
+    })
 
-    return list
+    return result
 }
 
 /**
@@ -111,7 +111,10 @@ async function searchComment(masterID, page, limit) {
  */
 async function getAvgScore(masterID) {
     let result = await model.Comment.findAll({
-        attributes: [[Sequelize.fn('AVG', Sequelize.col('score')), 'avgScore']]
+        attributes: [[Sequelize.fn('AVG', Sequelize.col('score')), 'avgScore']],
+        where: {
+            masterID
+        }
     })
 
     if(!result) {

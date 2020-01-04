@@ -118,8 +118,8 @@ router.get('/search', async(req, res, next) => {
     limit = Number(limit) || 10
 
     try {
-        let list = await Comment.searchComment(masterID, page, limit)
-        if (!list) {
+        let result = await Comment.searchComment(masterID, page, limit)
+        if (!result) {
             return res.json({
                 message: '评论查询失败',
                 success: false
@@ -129,7 +129,8 @@ router.get('/search', async(req, res, next) => {
         res.json({
             message: '评论查询成功',
             success: true,
-            list
+            list: result.rows,
+            count: result.count
         })
     } catch (error) {
         next(error)
