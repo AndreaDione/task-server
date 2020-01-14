@@ -88,6 +88,20 @@ router.post('/login', async(req, res, next) => {
             })
         }
 
+        res.io.on('connection', socket => {
+            console.log(`用户${account}已经连接`)
+            //将socket存入redis
+            socket.on('new', data => {
+                //收到new消息之后马上给客户端发送
+                socket.emit(data)
+            })
+
+            socket.on('disconnect', () => {
+                console.log(`用户${account}已经断开连接`)
+                //然后这个socket要从redis中清除
+            })
+        })
+
         // 这里将要生成token
         let token = Token.encodeToken(account)
 
@@ -140,7 +154,7 @@ router.post('/personal', async(req, res, next) => {
  */
 router.put('/personal', async(req, res, next) => {
     let token = req.headers.authorization
-    // console.log(token)
+        // console.log(token)
     try {
         let { account } = await Token.decodeToken(token)
         let { option } = req.body

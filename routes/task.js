@@ -57,6 +57,11 @@ router.post('/search', async(req, res, next) => {
             })
         }
 
+        // res.io.emit('new', {
+        //     count: result.count,
+        //     desc: '通过websocket的测试'
+        // })
+
         res.json({
             message: '任务列表查询成功',
             success: true,

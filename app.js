@@ -2,11 +2,13 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 20:29:00 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-28 12:54:05
+ * @Last Modified time: 2020-01-14 21:09:39
  */
 
 
 var express = require('express');
+var http = require('http');
+var ws = require('socket.io');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -16,13 +18,21 @@ var tasksRouter = require('./routes/task');
 var commentRouter = require('./routes/comment');
 
 var app = express();
-
 // view engine setup
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// websocket监听
+var server = http.createServer(app)
+var io = ws(server)
+
+app.use(function(req, res, next) {
+    res.io = io
+    next()
+})
 
 // 跨域设置
 app.use((req, res, next) => {
@@ -44,6 +54,7 @@ app.use((req, res, next) => {
     }
 })
 
+// 监听页面路由
 app.use('/user', usersRouter);
 app.use('/task', tasksRouter);
 app.use('/comment', commentRouter);
@@ -69,4 +80,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
-module.exports = app;
+// 导出的是http服务器和express服务器
+module.exports = {
+    server,
+    app
+};
