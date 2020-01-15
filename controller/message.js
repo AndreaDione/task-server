@@ -103,6 +103,10 @@ async function searchMessage(masterID, page, limit, keys = '') {
     result.rows.map(item => {
         item.date = formatDate(item.date)
     })
+    // for(let index in result.rows) {
+    //     let date = result.rows[index].date
+    //     result.rows[index].date = formatDate(date)
+    // }
 
     return result
 }

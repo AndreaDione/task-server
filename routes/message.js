@@ -22,11 +22,13 @@ const Token = require('../utlis/token')
  * 查询
  */
 router.get('/search', async(req, res, next) => {
-    let { masterID, page, limit, keys } = req.query
+    let { page, limit, keys } = req.query
     page = Number(page) || 1
     limit = Number(limit) || 10
 
     try {
+        let token = req.headers.authorization
+        let { account } = await Token.decodeToken(token)
         if (typeof keys !== 'string' && !(keys instanceof String)) {
             throw new Error('keys error!')
         }
@@ -34,7 +36,7 @@ router.get('/search', async(req, res, next) => {
         //处理关键词，这里以后需要修改
         keys = `%${keys.trim()}%`
 
-        let message = await Message.searchMessage(masterID, page, limit, keys)
+        let message = await Message.searchMessage(account, page, limit, keys)
 
         if (!message) {
             return res.json({
@@ -45,7 +47,9 @@ router.get('/search', async(req, res, next) => {
 
         res.json({
             message: '消息查询成功',
-            success: true
+            success: true,
+            list: message.rows,
+            count: message.count
         })
     } catch (error) {
         next(error)
@@ -83,9 +87,10 @@ router.post('/', async(req, res, next) => {
 router.put('/', async(req, res, next) => {
     let { ids, status } = req.body
     try {
-        let token = req.header.authorization
+        let token = req.headers.authorization
             //这里要等待token是否正确
-        await Token.decodeToken(token)
+        let {account} = await Token.decodeToken(token)
+        console.log(account)
 
         let result = await Message.eidtMessage(ids, status)
 
@@ -111,7 +116,7 @@ router.put('/', async(req, res, next) => {
 router.delete('/', async(req, res, next) => {
     let { ids } = req.body
     try {
-        let token = req.header.authorization
+        let token = req.headers.authorization
             //这里要等待token是否正确
         await Token.decodeToken(token)
 
