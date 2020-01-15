@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-15 20:29:00 
  * @Last Modified by: Andrea
- * @Last Modified time: 2020-01-14 21:09:39
+ * @Last Modified time: 2020-01-15 15:28:04
  */
 
 
@@ -16,6 +16,7 @@ var logger = require('morgan');
 var usersRouter = require('./routes/user');
 var tasksRouter = require('./routes/task');
 var commentRouter = require('./routes/comment');
+var messageRouter = require('./routes/message');
 
 var app = express();
 // view engine setup
@@ -58,6 +59,7 @@ app.use((req, res, next) => {
 app.use('/user', usersRouter);
 app.use('/task', tasksRouter);
 app.use('/comment', commentRouter);
+app.use('/message', messageRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
