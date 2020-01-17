@@ -86,16 +86,15 @@ async function searchComment(masterID, page, limit) {
             ['commentDate', 'DESC']
         ],
         limit: limit,
-        offset: limit * (page - 1)
+        offset: limit * (page - 1),
+        raw: true
     })
 
     if (!result) {
         return false
     }
-
     result.rows.map(item => {
         item.commentDate = formatDate(item.commentDate)
-
         if(item.replyDate) {
             item.replyDate = formatDate(item.replyDate)
         }

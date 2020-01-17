@@ -10,7 +10,6 @@ function formatDate(time, format = 'YY-MM-DD hh:mm:ss') {
     //从安全的角度出发，这里要重新根据time新建一个date对象
     //new Date的参数可以是date，或者是时间戳
     let date = new Date(time)
-
     let year = date.getFullYear(),
         month = date.getMonth() + 1,
         day = date.getDate(),
@@ -29,7 +28,6 @@ function formatDate(time, format = 'YY-MM-DD hh:mm:ss') {
         .replace(/hh/g, preArr[hour] || hour)
         .replace(/mm/g, preArr[min] || min)
         .replace(/ss/g, preArr[sec] || sec)
-
     return formatedDate
 }
 

@@ -74,6 +74,28 @@ async function eidtMessage(ids, status) {
 }
 
 /**
+ * 标记为全部已读
+ * @param  {[type]} masterID [description]
+ * @return {[type]}          [description]
+ */
+async function allMessageRead(masterID) {
+    let result = await model.Message.update({
+        status: 1
+    }, {
+        where: {
+            masterID,
+            status: 0
+        }
+    })
+
+    if (!result || result < 0) {
+        return false
+    }
+
+    return true
+}
+
+/**
  * 查询通知
  * @param {string} masterID 
  * @param {int} page 
@@ -93,7 +115,8 @@ async function searchMessage(masterID, page, limit, keys = '') {
             ['date', 'DESC']
         ],
         limit: limit,
-        offset: limit * (page - 1)
+        offset: limit * (page - 1),
+        raw: true
     })
 
     if (!result) {
@@ -103,10 +126,6 @@ async function searchMessage(masterID, page, limit, keys = '') {
     result.rows.map(item => {
         item.date = formatDate(item.date)
     })
-    // for(let index in result.rows) {
-    //     let date = result.rows[index].date
-    //     result.rows[index].date = formatDate(date)
-    // }
 
     return result
 }
@@ -133,5 +152,6 @@ async function findNotReadMessageCount(masterID) {
 exports.createMessage = createMessage
 exports.deleteMessage = deleteMessage
 exports.eidtMessage = eidtMessage
+exports.allMessageRead = allMessageRead
 exports.searchMessage = searchMessage
 exports.findNotReadMessageCount = findNotReadMessageCount

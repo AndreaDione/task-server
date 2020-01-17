@@ -150,7 +150,6 @@ async function searchTasks(keys, page, limit, others = null) {
     if (!result) {
         return false
     }
-
     result.rows.map(item => {
         item.lastModify = formatDate(item.lastModify)
         if (item.labels) {

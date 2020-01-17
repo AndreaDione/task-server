@@ -30,9 +30,9 @@ router.post('/', async(req, res, next) => {
 
     score = score || 5
     content = content || '该用户很懒，没有具体评价'
-    let commentDate = formatDate(new Date())
+    let commentDate = formatDate(new Date().getTime())
     let reply = '',
-        replyDate = formatDate(new Date()) // 追评， 默认没有
+        replyDate = formatDate(new Date().getTime()) // 追评， 默认没有
 
     try {
         let comment = await Comment.createComment({

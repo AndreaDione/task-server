@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const User = require('../controller/user');
+const { findNotReadMessageCount } = require('../controller/message')
 const Bcrypt = require('../utlis/bcrypt');
 const Token = require('../utlis/token');
 
@@ -91,9 +92,13 @@ router.post('/login', async(req, res, next) => {
         res.io.on('connection', socket => {
             console.log(`用户${account}已经连接`)
             //将socket存入redis
-            socket.on('new', data => {
-                //收到new消息之后马上给客户端发送
-                socket.emit(data)
+            socket.on('newMsg',async data => {
+                //查询未读消息
+                console.log('shoudao')
+                let count = await findNotReadMessageCount(account) || 0
+                socket.emit('newMsg', {
+                    count
+                })
             })
 
             socket.on('disconnect', () => {

@@ -111,6 +111,36 @@ router.put('/', async(req, res, next) => {
 })
 
 /**
+ * 标记为全部已读
+ * @param  {[type]} '/allRead' [description]
+ * @param  {[type]} async(req, res,          next [description]
+ * @return {[type]}            [description]
+ */
+router.put('/allRead', async(req, res, next) => {
+    try {
+        let token = req.headers.authorization
+            //这里要等待token是否正确
+        let {account} = await Token.decodeToken(token)
+
+        let result = await Message.allMessageRead(account)
+
+        if (!result) {
+            return res.json({
+                message: '修改消息状态失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '修改消息状态成功',
+            success: true
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+/**
  * 删除
  */
 router.delete('/', async(req, res, next) => {
