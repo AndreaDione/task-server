@@ -146,11 +146,11 @@ router.post('/edit', async(req, res, next) => {
 router.put('/edit', async(req, res, next) => {
     let { id, option } = req.body
     try {
+        //检查是否为本人操作
         let token = req.headers.authorization
         let { account } = await Token.decodeToken(token)
-        let task = await Task.updateTask(id, account, option)
-            //更新修改时间
         option.lastModify = formatDate(new Date().getTime())
+        let task = await Task.updateTask(id, option)
         if (!task || task <= 0) {
             return res.json({
                 message: '更新任务失败',
@@ -216,6 +216,9 @@ router.post('/receive', async(req, res, next) => {
             })
         }
 
+        //检查任务人数是否上限
+        await Task.checkTasksReciversCount(taskID)
+
         res.json({
             message: '接收任务成功',
             success: true
@@ -261,12 +264,27 @@ router.delete('/receive', async(req, res, next) => {
             })
         }
 
+        //检查任务人数是否上限
+        await Task.checkTasksReciversCount(taskID)
+
         res.json({
             message: '退出任务成功',
             success: true
         })
     } catch (error) {
         next(error)
+    }
+})
+
+router.get('/count', async(req, res, next) => {
+    try{
+        let {taskID} = req.query
+        let result = await Task.checkTasksReciversCount(taskID)
+        res.json({
+            result
+        })
+    }catch(err) {
+        next(err)
     }
 })
 

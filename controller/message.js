@@ -9,6 +9,7 @@
 const model = require('../database/models')
 const Sequelize = require('sequelize')
 const formatDate = require('../utlis/time')
+const redis = require('../utlis/redis')
 const { Op } = Sequelize
 
 /**
@@ -149,9 +150,26 @@ async function findNotReadMessageCount(masterID) {
     return result
 }
 
+/**
+ * 通知消息
+ * @param  {[type]} account [description]
+ * @return {[type]}         [description]
+ */
+async function messageTo(account) {
+    let socket = redis.get(account)
+    if(socket != null) {
+        let count = await findNotReadMessageCount(account) || 0
+        console.log('查找了',account)
+        socket.emit('newMsg', {
+            count
+        })
+    }
+}
+
 exports.createMessage = createMessage
 exports.deleteMessage = deleteMessage
 exports.eidtMessage = eidtMessage
 exports.allMessageRead = allMessageRead
 exports.searchMessage = searchMessage
 exports.findNotReadMessageCount = findNotReadMessageCount
+exports.messageTo = messageTo

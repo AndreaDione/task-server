@@ -30,6 +30,9 @@ module.exports = {
             money: {
                 type: Sequelize.STRING
             },
+            number: {
+                type: Sequelize.INTEGER
+            },
             status: {
                 type: Sequelize.INTEGER
             },

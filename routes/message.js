@@ -61,9 +61,9 @@ router.get('/search', async(req, res, next) => {
  */
 router.post('/', async(req, res, next) => {
     let { option } = req.body
-    let token = req.headers.authorization
-    let { account } = await Token.decodeToken(token)
-    option.emitter = account //消息发布者
+    // let token = req.headers.authorization
+    // let { account } = await Token.decodeToken(token)
+    // option.emitter = account //消息发布者
     option.date = formatDate(new Date().getTime())
 
     let message = await Message.createMessage(option)
@@ -74,6 +74,9 @@ router.post('/', async(req, res, next) => {
             success: false
         })
     }
+
+    //通知消息更改消息
+    Message.messageTo(option.masterID)
 
     res.json({
         message: '新增消息成功',
@@ -90,7 +93,6 @@ router.put('/', async(req, res, next) => {
         let token = req.headers.authorization
             //这里要等待token是否正确
         let {account} = await Token.decodeToken(token)
-        console.log(account)
 
         let result = await Message.eidtMessage(ids, status)
 
@@ -101,8 +103,11 @@ router.put('/', async(req, res, next) => {
             })
         }
 
+        //通知消息更改消息
+        Message.messageTo(account)
+
         res.json({
-            message: '修改消息专状态成功',
+            message: '修改消息状态成功',
             success: true
         })
     } catch (error) {
@@ -131,6 +136,9 @@ router.put('/allRead', async(req, res, next) => {
             })
         }
 
+        //通知消息更改消息
+        Message.messageTo(account)
+
         res.json({
             message: '修改消息状态成功',
             success: true
@@ -148,7 +156,7 @@ router.delete('/', async(req, res, next) => {
     try {
         let token = req.headers.authorization
             //这里要等待token是否正确
-        await Token.decodeToken(token)
+        let {account} = await Token.decodeToken(token)
 
         let result = await Message.deleteMessage(ids)
 
@@ -158,6 +166,9 @@ router.delete('/', async(req, res, next) => {
                 success: false
             })
         }
+
+        //通知消息更改消息
+        Message.messageTo(account)
 
         res.json({
             message: '删除消息成功',
@@ -191,5 +202,6 @@ router.get('/notRead', async(req, res, next) => {
         next(error)
     }
 })
+
 
 module.exports = router

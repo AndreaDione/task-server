@@ -38,11 +38,10 @@ async function createTask(option) {
  * 
  * @return {object}/{boolean} success return object, not return false(boolean)
  */
-async function updateTask(id, publisherID, option) {
+async function updateTask(id, option) {
     let task = await model.Task.update(option, {
         where: {
-            id,
-            publisherID
+            id
         }
     })
 
@@ -167,26 +166,35 @@ async function searchTasks(keys, page, limit, others = null) {
 }
 
 /**
- * 搜索详细任务
- * @param  {int} id 任务id
- * @return {Object}    [description]
+ * 获取任务详情
+ * @param  {[type]} id     [description]
+ * @param  {array} attr 获取的属性
+ * @return {[type]}        [description]
  */
-async function searchTaskDetails(id, publisherID) {
-    let task = await model.Task.findOne({
+async function searchTaskDetails(id, attr = null) {
+    let option = {
         where: {
             id
         }
-    })
+    }
+    if(attr !== null && attr instanceof Array) {
+        //根据attr获取
+        option.attributes = attr
+    }
+
+    let task = await model.Task.findOne(option)
 
     if (!task) {
         return false
     }
 
-    task.lastModify = formatDate(task.lastModify)
-    if (task.labels === null) {
-        task.labels = []
-    } else {
-        task.labels = task.labels.split("-")
+    if(task.lastModify) {
+        task.lastModify = formatDate(task.lastModify)
+        if (task.labels === null) {
+            task.labels = []
+        } else {
+            task.labels = task.labels.split("-")
+        }
     }
 
     return task
@@ -219,7 +227,6 @@ async function leaveTask(taskID, receiverID) {
         }
     })
 
-    console.log(result, 'leave')
     if (!result || result <= 0) {
         return false
     }
@@ -247,6 +254,43 @@ async function isUserInTask(taskID, receiverID) {
     return true
 }
 
+/**
+ * 判断任务是否满员--更新状态
+ * @param  {[type]} taskID      [description]
+ * @return {[type]}             [description]
+ */
+async function checkTasksReciversCount(taskID) {
+    let count = await getTaskReciverCount(taskID)
+
+    let {status, number} = await searchTaskDetails(taskID, ['number'])
+
+    if(count == number) {
+        //要修改task的状态
+        await updateTask(taskID, {
+            status: 3
+        })
+    }else if(count < number && status!==1) {
+        await updateTask(taskID, {
+            status: 1
+        })
+    }
+}
+
+/**
+ * 获取接接收任务的人数
+ * @param  {[type]} taskID [description]
+ * @return {[type]}        [description]
+ */
+async function getTaskReciverCount(taskID) {
+    let count = await model.MyReceiveTasks.count({
+        where: {
+            taskID
+        }
+    })
+
+    return count
+}
+
 exports.createTask = createTask
 exports.updateTask = updateTask
 exports.deleteTask = deleteTask
@@ -255,3 +299,4 @@ exports.searchTaskDetails = searchTaskDetails
 exports.joinTask = joinTask
 exports.leaveTask = leaveTask
 exports.isUserInTask = isUserInTask
+exports.checkTasksReciversCount = checkTasksReciversCount
