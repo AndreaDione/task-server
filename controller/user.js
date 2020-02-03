@@ -8,6 +8,8 @@
  */
 
 const model = require('../database/models')
+const Sequelize = require('sequelize')
+const { Op } = Sequelize
 
 /**
  * 用户是否存在
@@ -50,7 +52,6 @@ async function createUser(option) {
  * @param {object} option 
  */
 async function updatePersonMsg(account, option) {
-    console.log(option, account)
         // let { name, phone, email, avatar } = option
         // name = name || ''
         // phone = phone || ''
@@ -89,8 +90,34 @@ async function updatePassword(account, password) {
     return user
 }
 
+/**
+ * 获取用户列表
+ * @param  {Array} arr 用户ID数组
+ * @return {[type]}     [description]
+ */
+async function getUserList(arr) {
+    let result = await model.User.findAndCountAll({
+        attributes: {
+            exclude: ['password', 'labels']
+        },
+        where: {
+            account: {
+                [Op.or]: arr
+            }
+        },
+        raw: true
+    })
+
+    if(!result) {
+        return false
+    }
+
+    return result
+}
+
 
 exports.hasUser = hasUser
 exports.createUser = createUser
 exports.updatePersonMsg = updatePersonMsg
+exports.getUserList = getUserList
     // exports.updatePassword = updatePassword

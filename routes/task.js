@@ -10,6 +10,7 @@ var express = require('express');
 var router = express.Router();
 const formatDate = require('../utlis/time')
 const Task = require('../controller/task')
+const User = require('../controller/user')
 const Token = require('../utlis/token')
 
 /**
@@ -276,6 +277,51 @@ router.delete('/receive', async(req, res, next) => {
     }
 })
 
+/**
+ * 获取任务参与人员列表
+ * @param  {[type]} '/recivers' [description]
+ * @param  {[type]} async(req,  res,          next [description]
+ * @return {[type]}             [description]
+ */
+router.get('/recivers', async(req, res, next) => {
+    try {
+        let {taskID} = req.query
+        let arr = await Task.getReciversID(taskID)
+        console.log(arr, '测试用')
+        if(!(arr instanceof Array)) {
+            return res.json({
+                message: '获取任务参与人员ID集合失败',
+                success: false
+            })
+        }else if(arr instanceof Array && arr.length === 0) {
+            return res.json({
+                message: '无参与人员',
+                success: true,
+                list: [],
+                count: 0
+            })
+        }
+        //确保拿到的是数组
+        let result = await User.getUserList(arr)
+        if(!result) {
+            return res.json({
+                message: '获取参与人员列表失败',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '获取参与人员列表成功',
+            success: true,
+            list: result.rows,
+            count: result.count
+        })
+    }catch(err) {
+        next(err)
+    }
+})
+
+//这个是测试用的
 router.get('/count', async(req, res, next) => {
     try{
         let {taskID} = req.query

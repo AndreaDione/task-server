@@ -291,6 +291,29 @@ async function getTaskReciverCount(taskID) {
     return count
 }
 
+/**
+ * 获取任务参与者的ID集合
+ * @param  {[type]} taskID [description]
+ * @return {[type]}        [description]
+ */
+async function getReciversID(taskID) {
+    let arr = await model.MyReceiveTasks.findAll({
+        attributes: ['receiverID'],
+        where: {
+            taskID
+        },
+        raw: true
+    })
+
+    if(!arr || arr.length == 0){
+        return []
+    }
+
+    arr = arr.map(item => item.receiverID)
+
+    return arr
+}
+
 exports.createTask = createTask
 exports.updateTask = updateTask
 exports.deleteTask = deleteTask
@@ -300,3 +323,4 @@ exports.joinTask = joinTask
 exports.leaveTask = leaveTask
 exports.isUserInTask = isUserInTask
 exports.checkTasksReciversCount = checkTasksReciversCount
+exports.getReciversID = getReciversID
