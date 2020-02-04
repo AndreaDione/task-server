@@ -256,7 +256,14 @@ router.delete('/receive', async(req, res, next) => {
     try {
         let token = req.headers.authorization
         let { account } = await Token.decodeToken(token)
-        let result = await Task.leaveTask(taskID, account)
+        let result = null //结果
+        if(req.body.receiverID) {
+            //如果有这个参数，那就是踢出任务
+            let receiverID = req.body.receiverID
+            result = await Task.leaveTask(taskID, receiverID)
+        }else {
+            result = await Task.leaveTask(taskID, account)
+        }
 
         if (!result) {
             return res.json({

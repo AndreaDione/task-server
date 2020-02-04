@@ -1,11 +1,14 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var formidable = require('formidable')
+var router = express.Router()
+var path = require('path')
+var fs = require('fs')
 
-const User = require('../controller/user');
+const User = require('../controller/user')
 const { findNotReadMessageCount } = require('../controller/message')
-const Bcrypt = require('../utlis/bcrypt');
-const Token = require('../utlis/token');
-const redis = require('../utlis/redis');
+const Bcrypt = require('../utlis/bcrypt')
+const Token = require('../utlis/token')
+const redis = require('../utlis/redis')
 
 /**
  * 注册用户
@@ -230,6 +233,86 @@ router.put('/rePassword', async(req, res, next) => {
     } catch (error) {
         next(error)
     }
+
+})
+
+/**
+ * 上传头像
+ * @param  {[type]} '/avatar'  [description]
+ * @param  {[type]} async(req, res,          next [description]
+ * @return {[type]}            [description]
+ */
+router.post('/avatar',  async (req, res, next) => {
+    console.log('ok')
+    let token = req.headers.authorization
+    let { account } = await Token.decodeToken(token)
+    var form = new formidable.IncomingForm()
+    //指定图片接收路径
+    form.uploadDir = path.join(__dirname, '../static/uploads/')
+    form.maxFieldsSize = 2 * 1024 * 1024 // 限制用户头像大小为1MB
+    form.keepExtensions = true // 使用文件的原扩展名
+    //解析文件
+    form.parse(req, (err, fields, file) => {
+        var filePath = ''
+        //如果提交文件的form中将上传的文件的input名设置为tmpFile，就从tmpFile中取出文件；否则for in取出第一个上传的文件
+        if(file.tmpFile) {
+            filePath = file.tmpFile.path
+        }else {
+            for(var key in file) {
+                if(file[key].path && filePath === '') {
+                    filePath = file[key].path
+                    break
+                }
+            }
+        }
+
+        var targetDir = path.join(__dirname, '../static/uploads')
+
+        var fileExt = filePath.substring(filePath.lastIndexOf('.'))
+        //判断文件类型是否允许上传
+        if(('.jpg.jpeg.png.gif').indexOf(fileExt.toLowerCase()) === -1) {
+            var err = new Error('此文件类型不允许上传')
+            res.json({
+                message: '此文件类型不允许上传',
+                success: false
+            })
+        }else {
+            //以当前的时间戳对上传文件进行重命名
+            var fileName = new Date().getTime() + fileExt
+            var targetFile = path.join(targetDir, fileName)
+            //移动文件
+            fs.rename(filePath, targetFile, async (err) => {
+                if(err) {
+                    console.info(err)
+                    res.json({
+                        message: '移动文件操作错误',
+                        success: false
+                    })
+                }else {
+                    try {
+                        let user = await User.updatePersonMsg(account, {
+                            avatar: fileName
+                        })
+
+                        if (!user) {
+                            res.json({
+                                message: '修改失败',
+                                success: false
+                            })
+                        }
+
+                        res.json({
+                            message: '修改信息成功',
+                            success: true,
+                            fileUrl: targetFile
+                        })
+                    }catch(e) {
+                        next(e)
+                    }
+                }
+            })
+        }
+    })
 
 })
 
