@@ -144,7 +144,9 @@ router.get('/avgScore', async(req, res, next) => {
     const {masterID} = req.query
 
     try{
-        let score = await Comment.getAvgScore(masterID)
+        let score = await Comment.getAvgScore(masterID) || 0
+
+        // console.log(score, '平均分')
 
         if(!score && typeof score !== 'number'){
             return res.json({
