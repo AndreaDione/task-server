@@ -24,6 +24,7 @@ var app = express();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/upload', express.static(path.join(__dirname, "/static/uploads")))
 app.use(cookieParser());
 
 // websocket监听

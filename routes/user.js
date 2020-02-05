@@ -243,7 +243,7 @@ router.put('/rePassword', async(req, res, next) => {
  * @return {[type]}            [description]
  */
 router.post('/avatar',  async (req, res, next) => {
-    console.log('ok')
+    // console.log('ok')
     let token = req.headers.authorization
     let { account } = await Token.decodeToken(token)
     var form = new formidable.IncomingForm()
@@ -283,15 +283,15 @@ router.post('/avatar',  async (req, res, next) => {
             //移动文件
             fs.rename(filePath, targetFile, async (err) => {
                 if(err) {
-                    console.info(err)
                     res.json({
                         message: '移动文件操作错误',
                         success: false
                     })
                 }else {
                     try {
+                        let avatarPath = 'http://47.94.82.167:3000/upload/' + fileName
                         let user = await User.updatePersonMsg(account, {
-                            avatar: fileName
+                            avatar: avatarPath
                         })
 
                         if (!user) {
@@ -304,7 +304,7 @@ router.post('/avatar',  async (req, res, next) => {
                         res.json({
                             message: '修改信息成功',
                             success: true,
-                            fileUrl: targetFile
+                            fileUrl: avatarPath
                         })
                     }catch(e) {
                         next(e)
