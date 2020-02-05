@@ -175,7 +175,8 @@ async function searchTaskDetails(id, attr = null) {
     let option = {
         where: {
             id
-        }
+        },
+        raw: true
     }
     if(attr !== null && attr instanceof Array) {
         //根据attr获取
