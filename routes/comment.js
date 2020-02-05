@@ -146,7 +146,7 @@ router.get('/avgScore', async(req, res, next) => {
     try{
         let score = await Comment.getAvgScore(masterID)
 
-        if(!score){
+        if(!score && typeof score !== 'number'){
             return res.json({
                 message: '获取用户评价平均分失败',
                 success: false
