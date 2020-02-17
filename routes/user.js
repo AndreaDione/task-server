@@ -322,28 +322,43 @@ router.post('/avatar',  async (req, res, next) => {
  */
 router.get('/list', async(req, res, next) => {
     let token = req.headers.authorization
-    let { account } = await Token.decodeToken(token)
-    if(!User.isAdmin(account)) {
-        res.json({
-            message: '权限错误',
-            success: false
+    try{
+        let { account } = await Token.decodeToken(token)
+        if(!User.isAdmin(account)) {
+            res.json({
+                message: '权限错误',
+                success: false
+            })
+        }
+
+        let {keyword, page, limit} = req.query
+        page = Number(page) || 1
+        limit = Number(limit) || 8
+        if (typeof keyword !== 'string' && !(keyword instanceof String)) {
+            throw new Error('keys error!')
+        }
+        keyword = `%${keyword.trim()}%`
+
+        const result = await User.getUserListByKeywords({
+            keyword,page,limit
         })
-    }
 
-    const list = await User.getUserList()
+        if(!result) {
+            res.json({
+                message: '获取用户列表失败',
+                success: false
+            })
+        }
 
-    if(!list) {
         res.json({
-            message: '获取用户列表失败',
-            success: false
+            message: '获取用户列表成功',
+            success: true,
+            list: result.rows,
+            count: result.count
         })
+    }catch(err) {
+        next(err)
     }
-
-    res.json({
-        message: '获取用户列表成功',
-        success: true,
-        list
-    })
 })
 
 /**
@@ -352,29 +367,33 @@ router.get('/list', async(req, res, next) => {
  */
 router.delete('/', async(req, res, next) => {
     let token = req.headers.authorization
-    let { account } = await Token.decodeToken(token)
-    if(!User.isAdmin(account)) {
+    try {
+        let { account } = await Token.decodeToken(token)
+        if(!User.isAdmin(account)) {
+            res.json({
+                message: '权限错误',
+                success: false
+            })
+        }
+
+        const {id} = req.body
+
+        let result = await User.deleteUser(id)
+
+        if(!result) {
+            res.json({
+                message: '删除用户失败',
+                success: false
+            })
+        }
+
         res.json({
-            message: '权限错误',
-            success: false
+            message: '删除用户成功',
+            success: true
         })
+    }catch(err) {
+        next(err)
     }
-
-    const {id} = req.body
-
-    let result = await User.deleteUser(id)
-
-    if(!result) {
-        res.json({
-            message: '删除用户失败',
-            success: false
-        })
-    }
-
-    res.json({
-        message: '删除用户成功',
-        success: true
-    })
 })
 
 module.exports = router;

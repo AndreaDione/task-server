@@ -88,26 +88,61 @@ async function updatePassword(account, password) {
 }
 
 /**
- * 获取用户列表
+ * 获取用户列表(根据用户id数组获取)
  * @param  {Array} arr 用户ID数组
  * @return {[type]}     [description]
  */
-async function getUserList(arr = []) {
-    let option = {
+async function getUserListByIds(arr = []) {
+    let result = await model.User.findAndCountAll({
         attributes: {
             exclude: ['password', 'labels']
         },
-        raw: true
-    }
-    if(arr.length === 0) {
-        //获取所有用户
-        option.where = {
+        where: {
             account: {
                 [Op.or]: arr
             }
-        }
+        },
+        raw: true
+    })
+
+    if(!result) {
+        return false
     }
-    let result = await model.User.findAndCountAll(option)
+
+    return result
+}
+
+/**
+ * 获取用户列表(根据输入的条件获取)
+ * @param  {object} condition 关键字（包含keyword, page, limit）
+ */
+async function getUserListByKeywords(condition) {
+    const {keyword, page, limit} = condition
+    console.log(typeof limit, limit)
+    let result = await model.User.findAndCountAll({
+        attributes: {
+            exclude: ['password', 'labels']
+        },
+        where: {
+            [Op.or]: {
+                account: {
+                    [Op.like]: keyword
+                },
+                name: {
+                    [Op.like]: keyword
+                },
+                phone: {
+                    [Op.like]: keyword
+                },
+                email: {
+                    [Op.like]: keyword
+                }
+            }
+        },
+        raw: true,
+        limit: limit,
+        offset: limit * (page - 1)
+    })
 
     if(!result) {
         return false
@@ -148,7 +183,8 @@ function isAdmin(account) {
 exports.hasUser = hasUser
 exports.createUser = createUser
 exports.updatePersonMsg = updatePersonMsg
-exports.getUserList = getUserList
+exports.getUserListByIds = getUserListByIds
+exports.getUserListByKeywords = getUserListByKeywords
 exports.deleteUser = deleteUser
 exports.isAdmin = isAdmin
     // exports.updatePassword = updatePassword

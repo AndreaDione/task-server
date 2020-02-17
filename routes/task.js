@@ -309,7 +309,7 @@ router.get('/recivers', async(req, res, next) => {
             })
         }
         //确保拿到的是数组
-        let result = await User.getUserList(arr)
+        let result = await User.getUserListByIds(arr)
         if(!result) {
             return res.json({
                 message: '获取参与人员列表失败',
