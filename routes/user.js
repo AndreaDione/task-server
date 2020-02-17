@@ -316,4 +316,65 @@ router.post('/avatar',  async (req, res, next) => {
 
 })
 
+/**
+ * 获取用户列表
+ * 管理员接口
+ */
+router.get('/list', async(req, res, next) => {
+    let token = req.headers.authorization
+    let { account } = await Token.decodeToken(token)
+    if(!User.isAdmin(account)) {
+        res.json({
+            message: '权限错误',
+            success: false
+        })
+    }
+
+    const list = await User.getUserList()
+
+    if(!list) {
+        res.json({
+            message: '获取用户列表失败',
+            success: false
+        })
+    }
+
+    res.json({
+        message: '获取用户列表成功',
+        success: true,
+        list
+    })
+})
+
+/**
+ * 删除用户
+ * 管理员接口
+ */
+router.delete('/', async(req, res, next) => {
+    let token = req.headers.authorization
+    let { account } = await Token.decodeToken(token)
+    if(!User.isAdmin(account)) {
+        res.json({
+            message: '权限错误',
+            success: false
+        })
+    }
+
+    const {id} = req.body
+
+    let result = await User.deleteUser(id)
+
+    if(!result) {
+        res.json({
+            message: '删除用户失败',
+            success: false
+        })
+    }
+
+    res.json({
+        message: '删除用户成功',
+        success: true
+    })
+})
+
 module.exports = router;

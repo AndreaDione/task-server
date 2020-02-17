@@ -17,8 +17,9 @@ app.set('port', port);
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-server.listen(port, '172.24.53.213');
+const baseURL = '172.24.53.213'
+const testURL = 'localhost'
+server.listen(port, testURL);
 server.on('error', onError);
 server.on('listening', onListening);
 

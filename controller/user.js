@@ -16,14 +16,11 @@ const { Op } = Sequelize
  * @param {string} account 
  */
 async function hasUser(account) {
-    // console.log(account, '123213')
     let user = await model.User.findOne({
         where: {
             account
         }
     })
-
-    // console.log(user, 'find')
 
     if (!user) {
         return false
@@ -95,18 +92,22 @@ async function updatePassword(account, password) {
  * @param  {Array} arr 用户ID数组
  * @return {[type]}     [description]
  */
-async function getUserList(arr) {
-    let result = await model.User.findAndCountAll({
+async function getUserList(arr = []) {
+    let option = {
         attributes: {
             exclude: ['password', 'labels']
         },
-        where: {
+        raw: true
+    }
+    if(arr.length === 0) {
+        //获取所有用户
+        option.where = {
             account: {
                 [Op.or]: arr
             }
-        },
-        raw: true
-    })
+        }
+    }
+    let result = await model.User.findAndCountAll(option)
 
     if(!result) {
         return false
@@ -115,9 +116,39 @@ async function getUserList(arr) {
     return result
 }
 
+/**
+ * 删除用户
+ * @param  {[type]} id [description]
+ * @return {[type]}    [description]
+ */
+async function deleteUser(account) {
+    const result = await model.User.destroy({
+        where: {
+            account
+        }
+    })
+
+    if (!result || result <= 0) {
+        return false
+    }
+
+    return true
+}
+
+/**
+ * 判断是否为管理员
+ * @param  {[type]}  account [description]
+ * @return {Boolean}         [description]
+ */
+function isAdmin(account) {
+    return account === 'admin'
+}
+
 
 exports.hasUser = hasUser
 exports.createUser = createUser
 exports.updatePersonMsg = updatePersonMsg
 exports.getUserList = getUserList
+exports.deleteUser = deleteUser
+exports.isAdmin = isAdmin
     // exports.updatePassword = updatePassword
