@@ -2,7 +2,7 @@
  * @Author: Andrea 
  * @Date: 2019-12-26 15:56:21 
  * @Last Modified by: Andrea
- * @Last Modified time: 2019-12-28 12:28:56
+ * @Last Modified time: 2020-02-18 15:53:08
  * 标签
  * 
  * 这里有逻辑问题，先不实现
@@ -11,6 +11,19 @@
 const model = require('../database/models')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
+
+/**
+ * 获取标签列表
+ */
+async function getLabels() {
+    const list = await model.Label.findAll()
+
+    if (!list) {
+        return false
+    }
+
+    return list
+}
 
 /**
  * 添加标签
@@ -67,6 +80,7 @@ async function deleteLabel(id) {
     return true
 }
 
+exports.getLabels = getLabels
 exports.createLabel = createLabel
 exports.editLabel = editLabel
 exports.deleteLabel = deleteLabel
