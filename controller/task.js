@@ -108,6 +108,7 @@ async function searchTasks(keys, page, limit, others = null) {
                     }
                 }
             },
+            raw: true,
             order: [
                 ['lastModify', 'DESC']
             ],
@@ -136,13 +137,11 @@ async function searchTasks(keys, page, limit, others = null) {
                 receiverID: account
             }
         }
-        option.raw = true
     } else if (type == 'publish') {
         //搜索我发布的任务
         //建立表关联关系  当前表（User）的字段： user_name  关联表（userRoom）的字段user_id
         // model.Task.hasMany(model.MyReceiveTasks, {foreignKey:'id',targetKey:'taskID'})
         option.where.publisherID = account
-        option.raw = true
     }
 
     result = await model.Task.findAndCountAll(option)
@@ -153,16 +152,20 @@ async function searchTasks(keys, page, limit, others = null) {
 
     for(let item of result.rows) {
         item.lastModify = formatDate(item.lastModify)
+        //添加上标签名
+        item.labelNames = ''
 
         if(item.labels) {
             const ids = item.labels.split('-').map(id => parseInt(id))
-            item.labels = await getLabelNameById(ids)
+            item.labelNames = await getLabelNameById(ids)
         }
 
         if(item['rece.date']) {
             item['rece.date'] = formatDate(item['rece.date'])
         }
     }
+
+    console.log(result.rows)
     // result.rows.map(async item => {
     //     item.lastModify = formatDate(item.lastModify)
     //     // if (item.labels) {
@@ -207,11 +210,13 @@ async function searchTaskDetails(id, attr = null) {
         return false
     }
 
+    task.labelNames = ''
+
     if(task.lastModify) {
         task.lastModify = formatDate(task.lastModify)
         if(task.labels) {
             const ids = task.labels.split('-').map(id => parseInt(id))
-            task.labels = await getLabelNameById(ids)
+            task.labelNames = await getLabelNameById(ids)
         }
     }
 
