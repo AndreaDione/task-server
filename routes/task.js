@@ -121,8 +121,6 @@ router.post('/edit', async(req, res, next) => {
     option.publisherID = account
         //更新时间
     option.lastModify = formatDate(new Date().getTime())
-    option.labels = option.labels.join('-')
-        // console.log(option)
 
     let task = await Task.createTask(option)
     if (!task) {
