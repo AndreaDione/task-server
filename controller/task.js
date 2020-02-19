@@ -8,6 +8,7 @@
 const model = require('../database/index.js')
 const Sequelize = require('sequelize')
 const formatDate = require('../utlis/time')
+const { getLabelNameById } = require('./label')
 const { Op } = Sequelize
 
 /**
@@ -149,18 +150,35 @@ async function searchTasks(keys, page, limit, others = null) {
     if (!result) {
         return false
     }
-    result.rows.map(item => {
+
+    for(let item of result.rows) {
         item.lastModify = formatDate(item.lastModify)
-        if (item.labels) {
-            item.labels = item.labels.split("-")
-        } else {
-            item.labels = []
+
+        if(item.labels) {
+            const ids = item.labels.split('-').map(id => parseInt(id))
+            item.labels = await getLabelNameById(ids)
         }
 
         if(item['rece.date']) {
             item['rece.date'] = formatDate(item['rece.date'])
         }
-    })
+    }
+    // result.rows.map(async item => {
+    //     item.lastModify = formatDate(item.lastModify)
+    //     // if (item.labels) {
+    //     //     item.labels = item.labels.split("-")
+    //     // } else {
+    //     //     item.labels = []
+    //     // }
+    //     if(item.labels) {
+    //         const ids = item.labels.split('-').map(id => parseInt(id))
+    //         item.labels = await getLabelNameById(ids)
+    //     }
+
+    //     if(item['rece.date']) {
+    //         item['rece.date'] = formatDate(item['rece.date'])
+    //     }
+    // })
 
     return result
 }
@@ -191,10 +209,9 @@ async function searchTaskDetails(id, attr = null) {
 
     if(task.lastModify) {
         task.lastModify = formatDate(task.lastModify)
-        if (task.labels === null) {
-            task.labels = []
-        } else {
-            task.labels = task.labels.split("-")
+        if(task.labels) {
+            const ids = task.labels.split('-').map(id => parseInt(id))
+            task.labels = await getLabelNameById(ids)
         }
     }
 

@@ -26,6 +26,37 @@ async function getLabels() {
 }
 
 /**
+ * 根据id获取标签名
+ * @param  {Array} ids id集合
+ * @return {Array}     name集合
+ */
+async function getLabelNameById(ids = []) {
+    if (!(ids instanceof Array)) {
+        return []
+    }else if(ids.length === 0) {
+        return []
+    }else {
+        const result = await model.Label.findAll({
+            attributes: ['name'],
+            where: {
+                [Op.or]: {
+                    id: ids
+                }
+            }
+        })
+
+        if(!result) {
+            //查找失败
+            return false
+        }
+
+        const list = result.map(item => item.name).join('-')
+
+        return list
+    }
+}
+
+/**
  * 添加标签
  * @param {string} name 
  */
@@ -84,3 +115,4 @@ exports.getLabels = getLabels
 exports.createLabel = createLabel
 exports.editLabel = editLabel
 exports.deleteLabel = deleteLabel
+exports.getLabelNameById = getLabelNameById
