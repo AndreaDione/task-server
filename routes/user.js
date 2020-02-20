@@ -39,7 +39,7 @@ router.post('/register', async(req, res, next) => {
         password = await Bcrypt.getHashPass(password) // 加密处理
         console.log(password, '查看password是否被加密')
 
-        user = User.createUser({
+        user = await User.createUser({
             account,
             password,
             name,
@@ -50,7 +50,8 @@ router.post('/register', async(req, res, next) => {
         if (user) {
             return res.json({
                 message: '用户创建成功',
-                success: true
+                success: true,
+                user
             })
         } else {
             res.json({
