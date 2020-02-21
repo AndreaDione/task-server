@@ -119,6 +119,13 @@ async function searchTasks(keys, page, limit, others = null) {
     if (others.status) {
         option.where.status = others.status
     }
+
+    // 是否开启推荐模式
+    if(others.labels && typeof others.labels === 'string') {
+        let labels = others.labels.replace(/-/g, '-|-')
+        option.where.labels = { [Op.regexp]: `(-${labels}-)` }
+    }
+    console.log(option.where)
     //判断查询方式
     let account = '',
         type = '',
@@ -156,7 +163,7 @@ async function searchTasks(keys, page, limit, others = null) {
         item.labelNames = ''
 
         if(item.labels) {
-            const ids = item.labels.split('-').map(id => parseInt(id))
+            const ids = item.labels.split('-').filter(item => item !== '').map(id => parseInt(id))
             item.labelNames = await getLabelNameById(ids)
         }
 
@@ -165,23 +172,7 @@ async function searchTasks(keys, page, limit, others = null) {
         }
     }
 
-    console.log(result.rows)
-    // result.rows.map(async item => {
-    //     item.lastModify = formatDate(item.lastModify)
-    //     // if (item.labels) {
-    //     //     item.labels = item.labels.split("-")
-    //     // } else {
-    //     //     item.labels = []
-    //     // }
-    //     if(item.labels) {
-    //         const ids = item.labels.split('-').map(id => parseInt(id))
-    //         item.labels = await getLabelNameById(ids)
-    //     }
-
-    //     if(item['rece.date']) {
-    //         item['rece.date'] = formatDate(item['rece.date'])
-    //     }
-    // })
+    // console.log(result.rows)
 
     return result
 }
@@ -215,7 +206,7 @@ async function searchTaskDetails(id, attr = null) {
     if(task.lastModify) {
         task.lastModify = formatDate(task.lastModify)
         if(task.labels) {
-            const ids = task.labels.split('-').map(id => parseInt(id))
+            const ids = item.labels.split('-').filter(item => item !== '').map(id => parseInt(id))
             task.labelNames = await getLabelNameById(ids)
         }
     }

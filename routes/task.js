@@ -40,6 +40,9 @@ router.post('/search', async(req, res, next) => {
     if (req.body.status) {
         others.status = req.body.status
     }
+    if (req.body.labels) {
+        others.labels = req.body.labels
+    }
     try {
         // console.log(typeof keys)
         if (typeof keys !== 'string' && !(keys instanceof String)) {
@@ -122,6 +125,10 @@ router.post('/edit', async(req, res, next) => {
         //更新时间
     option.lastModify = formatDate(new Date().getTime())
 
+    if(option.labels) {
+        option.labels = `-${option.labels}-`
+    }
+
     let task = await Task.createTask(option)
     if (!task) {
         return res.json({
@@ -149,6 +156,11 @@ router.put('/edit', async(req, res, next) => {
         let token = req.headers.authorization
         let { account } = await Token.decodeToken(token)
         option.lastModify = formatDate(new Date().getTime())
+
+        if(option.labels) {
+            option.labels = `-${option.labels}-`
+        }
+
         let task = await Task.updateTask(id, option)
         if (!task || task <= 0) {
             return res.json({
