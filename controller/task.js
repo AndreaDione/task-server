@@ -125,7 +125,7 @@ async function searchTasks(keys, page, limit, others = null) {
         let labels = others.labels.replace(/-/g, '-|-')
         option.where.labels = { [Op.regexp]: `(-${labels}-)` }
     }
-    console.log(option.where)
+    // console.log(option.where)
     //判断查询方式
     let account = '',
         type = '',
