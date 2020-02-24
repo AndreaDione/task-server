@@ -120,38 +120,16 @@ async function searchTasks(keys, page, limit, others = null) {
         option.where.status = others.status
     }
 
-    // 是否开启推荐模式
+    //搜索模式
+    let result = null
     if(others.labels && typeof others.labels === 'string') {
-        let labels = others.labels.replace(/-/g, '-|-')
-        option.where.labels = { [Op.regexp]: `(-${labels}-)` }
+        //开启推荐模式
+        let labels = others.labels
+        result = await searchTasksByRecommendation(option, labels)
+    }else {
+        //关闭推荐模式
+        result = await searchTasksWithoutRecommendation(option, others)
     }
-    // console.log(option.where)
-    //判断查询方式
-    let account = '',
-        type = '',
-        result = null
-    if (others.type) {
-        type = others.type
-        account = others.account
-    }
-
-    if (type == 'receive') {
-        //搜索我接受的任务
-        option.include = { // include关键字表示关联查询
-            model: model.MyReceiveTasks, // 指定关联的model
-            as: 'rece',
-            where: {
-                receiverID: account
-            }
-        }
-    } else if (type == 'publish') {
-        //搜索我发布的任务
-        //建立表关联关系  当前表（User）的字段： user_name  关联表（userRoom）的字段user_id
-        // model.Task.hasMany(model.MyReceiveTasks, {foreignKey:'id',targetKey:'taskID'})
-        option.where.publisherID = account
-    }
-
-    result = await model.Task.findAndCountAll(option)
 
     if (!result) {
         return false
@@ -172,8 +150,72 @@ async function searchTasks(keys, page, limit, others = null) {
         }
     }
 
-    // console.log(result.rows)
+    return result
+}
 
+/**
+ * 推荐模式搜索
+ * @param  {Object} option 公共搜索条件
+ * @param  {string} labels 标签
+ * @return {[type]}        [description]
+ */
+async function searchTasksByRecommendation(option, labels) {
+    labels = labels.replace(/-/g, '-|-')
+    option.where.labels = { [Op.regexp]: `(-${labels}-)` }
+
+    let result = await model.Task.findAndCountAll(option)
+
+    if(result.rows.length >= option.limit) {
+        return result
+    }
+    //推荐模式不够limit数量，要重新搜索一次
+    option.offset /= option.limit
+    option.limit -= result.count
+    option.offset *= option.limit
+    option.where.labels = { [Op.notRegexp]: `(-${labels}-)` }
+    // console.log(option, 'conditions')
+    let tmpRes = await model.Task.findAndCountAll(option)
+    // console.log(tmpRes)
+    if(tmpRes.rows.length > 0) {
+        result.rows.push(...tmpRes.rows)
+    }
+
+    return result
+}
+
+/**
+ * 非推荐模式搜索
+ * @param  {Object} option 公共搜索条件
+ * @param  {Object} others 其他搜索条件
+ * @return {[type]}        [description]
+ */
+async function searchTasksWithoutRecommendation(option, others) {
+    //判断查询方式
+    if (!others.type) {
+        let result = await model.Task.findAndCountAll(option)
+        return result
+    }
+
+    const type = others.type
+    const account = others.account
+
+    if (type == 'receive') {
+        //搜索我接受的任务
+        option.include = { // include关键字表示关联查询
+            model: model.MyReceiveTasks, // 指定关联的model
+            as: 'rece',
+            where: {
+                receiverID: account
+            }
+        }
+    } else if (type == 'publish') {
+        //搜索我发布的任务
+        //建立表关联关系  当前表（User）的字段： user_name  关联表（userRoom）的字段user_id
+        // model.Task.hasMany(model.MyReceiveTasks, {foreignKey:'id',targetKey:'taskID'})
+        option.where.publisherID = account
+    }
+
+    let result = await model.Task.findAndCountAll(option)
     return result
 }
 
