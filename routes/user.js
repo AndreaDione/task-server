@@ -34,18 +34,17 @@ router.post('/register', async(req, res, next) => {
             })
         }
 
-        let { password, name, phone, email } = req.body
+        let { password, email } = req.body
 
         password = await Bcrypt.getHashPass(password) // 加密处理
-        console.log(password, '查看password是否被加密')
 
         user = await User.createUser({
             account,
             password,
-            name,
-            phone,
             email
         })
+
+        // console.log(user)
 
         if (user) {
             return res.json({
@@ -134,6 +133,53 @@ router.post('/login', async(req, res, next) => {
         next(error)
     }
 
+})
+
+/**
+ * 检查Email
+ * @return {[type]}         [description]
+ */
+router.post('/email', async (req, res, next) => {
+    const {code, email} = req.body
+
+    let result = User.checkEmail(email, code)
+
+    if(result) {
+        res.json({
+            success: true,
+            message: '验证成功'
+        })
+    }else {
+        res.json({
+            success: false,
+            message: '验证失败'
+        })
+    }
+})
+
+/**
+ * 获取邮箱验证吗
+ * @return {[type]}         [description]
+ */
+router.get('/email', async (req, res, next) => {
+    const {email} = req.query
+    try{
+        const result = await User.getEmailCode(email)
+        if(!result) {
+            res.json({
+                message: '该邮箱已被使用',
+                success: false
+            })
+        }
+
+        res.json({
+            message: '已发送邮件',
+            success: true,
+            result
+        })
+    }catch(err){
+        next(err)
+    }
 })
 
 /**

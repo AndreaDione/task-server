@@ -10,6 +10,8 @@
 const model = require('../database/models')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
+const redis = require('../utlis/redis')
+const { mailTo } = require('../utlis/email')
 
 /**
  * 用户是否存在
@@ -179,6 +181,64 @@ function isAdmin(account) {
     return account === 'admin'
 }
 
+/**
+ * 发送邮箱验证码
+ * @param  {[type]} email [description]
+ * @return {[type]}       [description]
+ */
+async function getEmailCode(email) {
+    // const result = await model.User.findOne({
+    //     attributes:['email'],
+    //     where: {
+    //         email
+    //     }
+    // })
+
+    // if(result) {
+    //     return false
+    // }
+    console.log('diaoyong ')
+    
+    //产生6位数的随机序列
+    const code = createCode(100000, 1000000)
+    //发送邮件
+    const mail = await mailTo(email, code)
+    console.log('已发邮件', email)
+    if(mail.success) {
+        redis.set(email, code)
+        return true
+    }
+
+    return false
+}
+
+/**
+ * 验证邮箱是否正确
+ * @param  {[type]} email [description]
+ * @param  {[type]} code  [description]
+ * @return {[type]}       [description]
+ */
+function checkEmail(email, code) {
+    const tmpCode = redis.get(email)
+    if(code === tmpCode) {
+        redis.set(email, '')
+        return true
+    }
+
+    return false
+}
+
+/**
+ * 产生随机序列
+ * @param  {[type]} max [description]
+ * @param  {[type]} min [description]
+ * @return {[type]}     [description]
+ */
+function createCode(min, max) {
+    let code =  Math.floor(Math.random() * (max - min)) + min
+    return String(code)
+}
+
 
 exports.hasUser = hasUser
 exports.createUser = createUser
@@ -187,4 +247,6 @@ exports.getUserListByIds = getUserListByIds
 exports.getUserListByKeywords = getUserListByKeywords
 exports.deleteUser = deleteUser
 exports.isAdmin = isAdmin
+exports.getEmailCode = getEmailCode
+exports.checkEmail = checkEmail
     // exports.updatePassword = updatePassword
