@@ -219,7 +219,7 @@ async function getEmailCode(email) {
  */
 function checkEmail(email, code) {
     const tmpCode = redis.get(email)
-    console.log(email, code, tmpCode)
+    // console.log(email, code, tmpCode)
     if(code === tmpCode) {
         redis.set(email, '')
         return true
