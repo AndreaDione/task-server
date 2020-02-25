@@ -71,6 +71,12 @@ async function updatePersonMsg(account, option) {
     return user
 }
 
+/**
+ * 修改密码
+ * @param  {[type]} account  [description]
+ * @param  {[type]} password [description]
+ * @return {[type]}          [description]
+ */
 async function updatePassword(account, password) {
     let user = await model.User.update({
         password
@@ -187,6 +193,25 @@ function isAdmin(account) {
  * @return {[type]}       [description]
  */
 async function getEmailCode(email) {
+    //产生6位数的随机序列
+    const code = createCode(100000, 1000000)
+    //发送邮件
+    const mail = await mailTo(email, code)
+    // console.log('已发邮件', email)
+    if(mail.success) {
+        redis.set(email, code)
+        return true
+    }
+
+    return false
+}
+
+/**
+ * 检查Email是否被注册
+ * @param  {[type]}  email [description]
+ * @return {Boolean}       [description]
+ */
+async function isEmailExist(email) {
     const result = await model.User.findOne({
         attributes:['email'],
         where: {
@@ -195,16 +220,6 @@ async function getEmailCode(email) {
     })
 
     if(result) {
-        return false
-    }
-    
-    //产生6位数的随机序列
-    const code = createCode(100000, 1000000)
-    //发送邮件
-    const mail = await mailTo(email, code)
-    console.log('已发邮件', email)
-    if(mail.success) {
-        redis.set(email, code)
         return true
     }
 
@@ -249,4 +264,5 @@ exports.deleteUser = deleteUser
 exports.isAdmin = isAdmin
 exports.getEmailCode = getEmailCode
 exports.checkEmail = checkEmail
+exports.isEmailExist = isEmailExist
     // exports.updatePassword = updatePassword

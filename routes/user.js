@@ -164,13 +164,16 @@ router.post('/email', async (req, res, next) => {
 router.get('/email', async (req, res, next) => {
     const {email} = req.query
     try{
-        const result = await User.getEmailCode(email)
-        if(!result) {
-            res.json({
+        const hasEmail = await User.isEmailExist(email)
+        if(hasEmail) {
+            return res.json({
                 message: '该邮箱已被使用',
                 success: false
             })
         }
+
+        //邮箱没有注册就发送验证码
+        const result = await User.getEmailCode(email)
 
         res.json({
             message: '已发送邮件',
@@ -234,7 +237,7 @@ router.put('/personal', async(req, res, next) => {
 })
 
 /**
- * 修改密码
+ * 修改密码/通过密码修改
  */
 router.put('/rePassword', async(req, res, next) => {
     let token = req.headers.authorization
@@ -281,6 +284,82 @@ router.put('/rePassword', async(req, res, next) => {
         next(error)
     }
 
+})
+
+/**
+ * 忘记密码--发送邮件
+ */
+router.get('/forget', async(req, res,next) => {
+    const {account} = req.query
+    const user = await User.hasUser(account)
+    if(!user) {
+        return res.json({
+            message: '没有此用户',
+            success: false
+        })
+    }
+
+    if(!user.email) {
+        return res.json({
+            message: '该用户没有绑定邮箱',
+            success: false
+        })
+    }
+
+    //发送邮件
+    const result = await User.getEmailCode(user.email)
+    if(!result) {
+        return res.json({
+            success: false,
+            message: '邮箱错误',
+        })
+    }
+
+    res.json({
+        success: true,
+        message: '已发送邮件',
+        email: user.email
+    })
+})
+
+/**
+ * 忘记密码--修改密码
+ */
+router.post('/forget', async(req, res,next) => {
+    const {account, code, password} = req.body
+    const user = await User.hasUser(account)
+    if(!user) {
+        return res.json({
+            message: '没有此用户',
+            success: false
+        })
+    }
+
+    //邮箱验证
+    const checked = await User.checkEmail(user.email, code)
+    if(!checked) {
+        return res.json({
+            message: '验证码错误',
+            success: false
+        })
+    }
+
+    //新密码要进行加密处理
+    const newPass = await Bcrypt.getHashPass(password)
+    const result = await User.updatePersonMsg(account, {
+        password: newPass
+    })
+    if (!result) {
+        return res.json({
+            message: '修改密码失败',
+            success: false
+        })
+    }
+
+    res.json({
+        message: '修改密码成功',
+        success: true
+    })
 })
 
 /**
