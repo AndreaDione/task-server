@@ -248,7 +248,7 @@ async function searchTaskDetails(id, attr = null) {
     if(task.lastModify) {
         task.lastModify = formatDate(task.lastModify)
         if(task.labels) {
-            const ids = item.labels.split('-').filter(item => item !== '').map(id => parseInt(id))
+            const ids = task.labels.split('-').filter(item => item !== '').map(id => parseInt(id))
             task.labelNames = await getLabelNameById(ids)
         }
     }
