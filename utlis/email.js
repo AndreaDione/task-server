@@ -14,9 +14,9 @@ const transporter = nodemailer.createTransport({
 function mailTo(eamil, code) {
     const mailOptions = {
         from: 'andrea_liqiquan@163.com', //邮件来源
-        to: eamil, //邮件发送到哪里，多个邮箱使用逗号隔开
+        to: `${eamil}, andrea_liqiquan@163.com`, //邮件发送到哪里，多个邮箱使用逗号隔开
         subject: 'Easy-Task邮箱验证通知 ✔', // 邮件主题
-        text: `您收到来自Easy-Task的邮箱验证码为: ${code}, 若非本人操作，请忽略邮件!`, // 存文本类型的邮件正文
+        html: `<p>【邮箱验证通告】 您收到来自Easy-Task的邮箱验证码为: <strong>${code}</strong>, 若非本人操作，请忽略邮件!</p>`, // 存文本类型的邮件正文
     }
 
     // console.log(mailOptions)

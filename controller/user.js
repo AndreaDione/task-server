@@ -187,17 +187,16 @@ function isAdmin(account) {
  * @return {[type]}       [description]
  */
 async function getEmailCode(email) {
-    // const result = await model.User.findOne({
-    //     attributes:['email'],
-    //     where: {
-    //         email
-    //     }
-    // })
+    const result = await model.User.findOne({
+        attributes:['email'],
+        where: {
+            email
+        }
+    })
 
-    // if(result) {
-    //     return false
-    // }
-    console.log('diaoyong ')
+    if(result) {
+        return false
+    }
     
     //产生6位数的随机序列
     const code = createCode(100000, 1000000)
@@ -220,6 +219,7 @@ async function getEmailCode(email) {
  */
 function checkEmail(email, code) {
     const tmpCode = redis.get(email)
+    console.log(email, code, tmpCode)
     if(code === tmpCode) {
         redis.set(email, '')
         return true
