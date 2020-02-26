@@ -41,7 +41,11 @@ router.post('/register', async(req, res, next) => {
         user = await User.createUser({
             account,
             password,
-            email
+            email,
+            name: '',
+            labels: '',
+            avatar: '',
+            phone: ''
         })
 
         // console.log(user)
