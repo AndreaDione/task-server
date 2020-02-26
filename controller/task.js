@@ -165,20 +165,20 @@ async function searchTasksByRecommendation(option, labels) {
 
     let result = await model.Task.findAndCountAll(option)
 
-    if(result.rows.length >= option.limit) {
-        return result
-    }
-    //推荐模式不够limit数量，要重新搜索一次
-    option.offset /= option.limit
-    option.limit -= result.count
-    option.offset *= option.limit
-    option.where.labels = { [Op.notRegexp]: `(-${labels}-)` }
-    // console.log(option, 'conditions')
-    let tmpRes = await model.Task.findAndCountAll(option)
-    // console.log(tmpRes)
-    if(tmpRes.rows.length > 0) {
-        result.rows.push(...tmpRes.rows)
-    }
+    // if(result.rows.length >= option.limit) {
+    //     return result
+    // }
+    // //推荐模式不够limit数量，要重新搜索一次
+    // option.offset /= option.limit
+    // option.limit -= result.count
+    // option.offset *= option.limit
+    // option.where.labels = { [Op.notRegexp]: `(-${labels}-)` }
+    // // console.log(option, 'conditions')
+    // let tmpRes = await model.Task.findAndCountAll(option)
+    // // console.log(tmpRes)
+    // if(tmpRes.rows.length > 0) {
+    //     result.rows.push(...tmpRes.rows)
+    // }
 
     return result
 }
