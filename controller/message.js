@@ -159,7 +159,6 @@ async function messageTo(account) {
     let socket = redis.get(account)
     if(socket != null) {
         let count = await findNotReadMessageCount(account) || 0
-        console.log('查找了',account)
         socket.emit('newMsg', {
             count
         })

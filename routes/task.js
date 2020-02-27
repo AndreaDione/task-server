@@ -194,6 +194,9 @@ router.delete('/edit', async(req, res, next) => {
             })
         }
 
+        //解散任务
+        // Task.dismissTask(id, account)
+
         res.json({
             message: '删除成功',
             success: true

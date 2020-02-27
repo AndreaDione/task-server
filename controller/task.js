@@ -10,6 +10,8 @@ const Sequelize = require('sequelize')
 const formatDate = require('../utlis/time')
 const { getLabelNameById } = require('./label')
 const { Op } = Sequelize
+const redis = require('../utlis/redis')
+const message = require('./message.js')
 
 /**
  * 定义关系模型
@@ -291,6 +293,37 @@ async function leaveTask(taskID, receiverID) {
 }
 
 /**
+ * 解散任务
+ * @param  {[type]} taskID [description]
+ * @return {[type]}        [description]
+ */
+async function dismissTask(taskID, account) {
+    let result = await model.MyReceiveTasks.findAll({
+        attributes: ['receiverID'],
+        rows: true
+    })
+    if(!result) {
+        return false
+    }
+    result.forEach(async item => {
+        //发送通知
+        const result = await message.createMessage({
+            option:{
+                content: "任务解散通知",
+                status: 0,
+                masterID: item.receiverID,
+                emitter: account,
+                type: 0
+            }
+        })
+        if(result) {
+            //通知该用户
+            message.messageTo(item.receiverID)
+        }
+    })
+}
+
+/**
  * 查询用户是否在任务中
  * @param  {int}  taskID     [description]
  * @param  {string}  receiverID [description]
@@ -380,3 +413,4 @@ exports.leaveTask = leaveTask
 exports.isUserInTask = isUserInTask
 exports.checkTasksReciversCount = checkTasksReciversCount
 exports.getReciversID = getReciversID
+exports.dismissTask = dismissTask
