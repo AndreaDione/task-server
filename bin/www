@@ -19,7 +19,7 @@ app.set('port', port);
  */
 const baseURL = '172.24.53.213'
 const testURL = 'localhost'
-server.listen(port, baseURL);
+server.listen(port, testURL);
 server.on('error', onError);
 server.on('listening', onListening);
 
