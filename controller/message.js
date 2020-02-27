@@ -19,11 +19,14 @@ const { Op } = Sequelize
  * @return {object}/{boolean} success return object, not return false(boolean)
  */
 async function createMessage(option) {
+    option.date = formatDate(new Date().getTime())
     let message = await model.Message.create(option)
 
     if (!message) {
         return false
     }
+
+    messageTo(option.masterID)
 
     return message
 }
@@ -157,6 +160,7 @@ async function findNotReadMessageCount(masterID) {
  */
 async function messageTo(account) {
     let socket = redis.get(account)
+    console.log(socket, account, 'mesto')
     if(socket != null) {
         let count = await findNotReadMessageCount(account) || 0
         socket.emit('newMsg', {

@@ -12,7 +12,7 @@ const formatDate = require('../utlis/time')
 const Task = require('../controller/task')
 const User = require('../controller/user')
 const Token = require('../utlis/token')
-
+const {createMessage} = require('../controller/message')
 /**
  * API要求
  * 
@@ -195,7 +195,7 @@ router.delete('/edit', async(req, res, next) => {
         }
 
         //解散任务
-        // Task.dismissTask(id, account)
+        Task.dismissTask(id, account)
 
         res.json({
             message: '删除成功',
@@ -229,6 +229,19 @@ router.post('/receive', async(req, res, next) => {
                 success: false
             })
         }
+
+        //发通知
+        setTimeout(async () => {
+            const publisher = await Task.searchTaskDetails(taskID, ['publisherID'])
+            const publisherID = publisher.publisherID || ''
+            createMessage({
+                content: `用户${account}加入了任务`,
+                status: 0,
+                masterID: publisherID,
+                emitter: account,
+                type: 1
+            })
+        })
 
         //检查任务人数是否上限
         await Task.checkTasksReciversCount(taskID)
@@ -282,6 +295,29 @@ router.delete('/receive', async(req, res, next) => {
             return res.json({
                 message: '退出任务失败',
                 success: false
+            })
+        }
+
+        //发通知
+        if(req.body.receiverID) {
+            createMessage({
+                content: `您被${account}踢出了任务`,
+                status: 0,
+                masterID: req.body.receiverID,
+                emitter: account,
+                type: 0
+            })
+        }else {
+            setTimeout(async () => {
+                const publisher = await Task.searchTaskDetails(taskID, ['publisherID'])
+                const publisherID = publisher.publisherID || ''
+                createMessage({
+                    content: `用户${account}离开了任务`,
+                    status: 0,
+                    masterID: publisherID,
+                    emitter: account,
+                    type: 1
+                })
             })
         }
 
@@ -340,26 +376,5 @@ router.get('/recivers', async(req, res, next) => {
         next(err)
     }
 })
-
-//这个是测试用的
-router.get('/count', async(req, res, next) => {
-    try{
-        let {taskID} = req.query
-        let result = await Task.checkTasksReciversCount(taskID)
-        res.json({
-            result
-        })
-    }catch(err) {
-        next(err)
-    }
-})
-
-/**
- * 踢出任务
- */
-router.delete('/getout', async(req, res, next) => {
-
-})
-
 
 module.exports = router;

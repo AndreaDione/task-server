@@ -9,7 +9,7 @@ const express = require('express')
 const router = express.Router()
 const formatDate = require('../utlis/time')
 const Comment = require('../controller/comment')
-
+const {createMessage} = require('../controller/message')
 /**
  * API要求
  * 
@@ -51,6 +51,14 @@ router.post('/', async(req, res, next) => {
                 success: false
             })
         }
+
+        createMessage({
+            content: `用户${commentatorID}对您进行了评论`,
+            status: 0,
+            masterID: masterID,
+            emitter: commentatorID,
+            type: 2
+        })
 
         res.json({
             message: '添加评论成功',

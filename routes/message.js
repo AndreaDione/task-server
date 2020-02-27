@@ -64,7 +64,7 @@ router.post('/', async(req, res, next) => {
     // let token = req.headers.authorization
     // let { account } = await Token.decodeToken(token)
     // option.emitter = account //消息发布者
-    option.date = formatDate(new Date().getTime())
+    // option.date = formatDate(new Date().getTime())
 
     let message = await Message.createMessage(option)
 
@@ -76,7 +76,7 @@ router.post('/', async(req, res, next) => {
     }
 
     //通知消息更改消息
-    Message.messageTo(option.masterID)
+    // Message.messageTo(option.masterID)
 
     res.json({
         message: '新增消息成功',

@@ -298,29 +298,38 @@ async function leaveTask(taskID, receiverID) {
  * @return {[type]}        [description]
  */
 async function dismissTask(taskID, account) {
-    let result = await model.MyReceiveTasks.findAll({
+    const result = await model.MyReceiveTasks.findAll({
         attributes: ['receiverID'],
-        rows: true
+        rows: true,
+        where: {
+            taskID
+        }
     })
-    if(!result) {
-        return false
-    }
-    result.forEach(async item => {
+    if(result instanceof Array) {
+        result.forEach(item => {
         //发送通知
-        const result = await message.createMessage({
-            option:{
+            message.createMessage({
                 content: "任务解散通知",
                 status: 0,
                 masterID: item.receiverID,
                 emitter: account,
                 type: 0
-            }
+            })
         })
-        if(result) {
-            //通知该用户
-            message.messageTo(item.receiverID)
+    }
+
+    //删除
+    const del = await model.MyReceiveTasks.destroy({
+        where: {
+            taskID
         }
     })
+
+    if(!del) {
+        return false
+    }
+
+    return true
 }
 
 /**
