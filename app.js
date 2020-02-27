@@ -6,20 +6,23 @@
  */
 
 
-var express = require('express');
-var http = require('http');
-var ws = require('socket.io');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const http = require('http');
+const ws = require('socket.io');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var usersRouter = require('./routes/user');
-var tasksRouter = require('./routes/task');
-var commentRouter = require('./routes/comment');
-var messageRouter = require('./routes/message');
-var labelRouter = require('./routes/label');
+const { findNotReadMessageCount } = require('./controller/message')
+const redis = require('./utlis/redis')
 
-var app = express();
+const usersRouter = require('./routes/user');
+const tasksRouter = require('./routes/task');
+const commentRouter = require('./routes/comment');
+const messageRouter = require('./routes/message');
+const labelRouter = require('./routes/label');
+
+const app = express();
 // view engine setup
 
 app.use(logger('dev'));
@@ -29,12 +32,41 @@ app.use('/upload', express.static(path.join(__dirname, "/static/uploads")))
 app.use(cookieParser());
 
 // websocket监听
-var server = http.createServer(app)
-var io = ws(server)
+const server = http.createServer(app)
+const io = ws(server)
 
-app.use(function(req, res, next) {
-    res.io = io
-    next()
+// app.use(function(req, res, next) {
+//     res.io = io
+//     next()
+// })
+
+io.on('connection', socket => {
+    // console.log(`用户已经连接`)
+
+    socket.on('login', data => {
+        redis.set(data.account, socket)
+    })
+
+    socket.on('newMsg',async data => {
+        //查询未读消息
+        let count = await findNotReadMessageCount(data.account) || 0
+        socket.emit('newMsg', {
+            count
+        })
+    })
+
+    socket.on('outsign', data => {
+        //自定义退出事件
+        redis.set(data.account, null)
+    })
+
+    // socket.on('disconnect', () => {
+    //     console.log(`用户已经断开连接`)
+    //     //然后这个socket要从redis中清除
+    //     // redis.set(account, null)
+    // })
+
+    // redis.set(account, socket)
 })
 
 // 跨域设置

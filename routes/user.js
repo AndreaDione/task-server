@@ -5,10 +5,8 @@ var path = require('path')
 var fs = require('fs')
 
 const User = require('../controller/user')
-const { findNotReadMessageCount } = require('../controller/message')
 const Bcrypt = require('../utlis/bcrypt')
 const Token = require('../utlis/token')
-const redis = require('../utlis/redis')
 
 /**
  * 注册用户
@@ -92,25 +90,6 @@ router.post('/login', async(req, res, next) => {
                 success: false
             })
         }
-
-        res.io.on('connection', socket => {
-            console.log(`用户${account}已经连接`)
-            socket.on('newMsg',async data => {
-                //查询未读消息
-                let count = await findNotReadMessageCount(account) || 0
-                socket.emit('newMsg', {
-                    count
-                })
-            })
-
-            socket.on('disconnect', () => {
-                console.log(`用户${account}已经断开连接`)
-                //然后这个socket要从redis中清除
-                redis.set(account, null)
-            })
-
-            redis.set(account, socket)
-        })
 
         // 这里将要生成token
         let token = Token.encodeToken(account)
