@@ -3,7 +3,8 @@
         "username": "root",
         "password": "772803113.and.",
         "database": "task-app-development",
-        "host": "127.0.0.1",
+        "host": "172.24.53.213",
+        "port": "4002",
         "dialect": "mysql",
         "timezone": "+08:00"
     },
@@ -11,7 +12,8 @@
         "username": "root",
         "password": null,
         "database": "database_test",
-        "host": "127.0.0.1",
+        "host": "172.24.53.213",
+        "port": "4002",
         "dialect": "mysql",
         "operatorsAliases": false,
         "timezone": "+08:00"
@@ -20,7 +22,8 @@
         "username": "root",
         "password": null,
         "database": "database_production",
-        "host": "127.0.0.1",
+        "host": "172.24.53.213",
+        "port": "4002",
         "dialect": "mysql",
         "operatorsAliases": false,
         "timezone": "+08:00"
