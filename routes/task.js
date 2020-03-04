@@ -230,7 +230,7 @@ router.post('/receive', async(req, res, next) => {
             })
         }
 
-        //发通知
+        // 发通知
         setTimeout(async () => {
             const publisher = await Task.searchTaskDetails(taskID, ['publisherID'])
             const publisherID = publisher.publisherID || ''
@@ -243,9 +243,8 @@ router.post('/receive', async(req, res, next) => {
             })
         })
 
-        //检查任务人数是否上限
+        // 检查任务人数是否上限
         await Task.checkTasksReciversCount(taskID)
-
         res.json({
             message: '接收任务成功',
             success: true

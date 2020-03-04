@@ -249,8 +249,10 @@ async function searchTaskDetails(id, attr = null) {
         return false
     }
 
-    const userMsg = await getUserMsg(task.publisherID, ['avatar'])
-    task.avatar = userMsg ? userMsg.avatar : ''
+    if(task.publisherID) {
+        const userMsg = await getUserMsg(task.publisherID, ['avatar'])
+        task.avatar = userMsg ? userMsg.avatar : ''
+    }
 
     task.labelNames = ''
 
