@@ -9,6 +9,7 @@ const model = require('../database/index.js')
 const Sequelize = require('sequelize')
 const formatDate = require('../utlis/time')
 const { getLabelNameById } = require('./label')
+const { getUserMsg } = require('./user')
 const { Op } = Sequelize
 const redis = require('../utlis/redis')
 const message = require('./message.js')
@@ -142,6 +143,9 @@ async function searchTasks(keys, page, limit, others = null) {
         //添加上标签名
         item.labelNames = ''
 
+        const userMsg = await getUserMsg(item.publisherID, ['avatar'])
+        item.avatar = userMsg ? userMsg.avatar : ''
+
         if(item.labels) {
             const ids = item.labels.split('-').filter(item => item !== '').map(id => parseInt(id))
             item.labelNames = await getLabelNameById(ids)
@@ -244,6 +248,9 @@ async function searchTaskDetails(id, attr = null) {
     if (!task) {
         return false
     }
+
+    const userMsg = await getUserMsg(task.publisherID, ['avatar'])
+    task.avatar = userMsg ? userMsg.avatar : ''
 
     task.labelNames = ''
 

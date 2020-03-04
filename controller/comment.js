@@ -9,6 +9,7 @@
 const model = require('../database/models')
 const Sequelize = require('sequelize')
 const formatDate = require('../utlis/time')
+const { getUserMsg } = require('./user')
 const { Op } = Sequelize
 
 /**
@@ -93,12 +94,16 @@ async function searchComment(masterID, page, limit) {
     if (!result) {
         return false
     }
-    result.rows.map(item => {
+
+    for(let item of result.rows) {
         item.commentDate = formatDate(item.commentDate)
         if(item.replyDate) {
             item.replyDate = formatDate(item.replyDate)
         }
-    })
+
+        const userMsg = await getUserMsg(item.commentatorID, ['avatar'])
+        item.avatar = userMsg ? userMsg.avatar : ''
+    }
 
     return result
 }

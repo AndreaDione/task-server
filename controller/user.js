@@ -62,8 +62,6 @@ async function updatePersonMsg(account, option) {
         }
     })
 
-    console.log(user, 'update')
-
     if (!user) {
         return false
     }
@@ -85,8 +83,6 @@ async function updatePassword(account, password) {
             account
         }
     })
-
-    // console.log(user, 'update password')
 
     if (!user) {
         return false
@@ -179,6 +175,27 @@ async function deleteUser(account) {
 }
 
 /**
+ * 获取用户信息
+ * @param  {[type]} account [description]
+ * @param  {Array}  attrs   需要的字段
+ * @return {[type]}         [description]
+ */
+async function getUserMsg(account, attrs = []) {
+    if(attrs.length === 0) {
+        return {}
+    }
+
+    const result = await model.User.findOne({
+        attributes: attrs,
+        where: {
+            account
+        }
+    })
+
+    return result ? result : false
+}
+
+/**
  * 判断是否为管理员
  * @param  {[type]}  account [description]
  * @return {Boolean}         [description]
@@ -265,4 +282,5 @@ exports.isAdmin = isAdmin
 exports.getEmailCode = getEmailCode
 exports.checkEmail = checkEmail
 exports.isEmailExist = isEmailExist
+exports.getUserMsg = getUserMsg
     // exports.updatePassword = updatePassword
